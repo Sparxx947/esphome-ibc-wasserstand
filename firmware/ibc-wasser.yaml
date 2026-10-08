@@ -1,0 +1,114 @@
+# IBC-Wassercontainer A (1000 l, ueberdacht draussen) — Fuellstand + Schwimmer „Ziel voll“
+# Hardware: Wemos D1 mini V3.0.0 (ESP8266)
+#   Ultraschall A02-Typ (UART, 3–450 cm, IP67, 60° Abstrahlwinkel), mittig im Deckel von A, schaut senkrecht nach unten
+#     VCC → 3V3   (Sensor kann 3,3–5 V; an 3,3 V liegt auch sein TX-Pegel bei 3,3 V → ESP-sicher)
+#     GND → G
+#     TX  → D7 (GPIO13)   Sensor sendet alle ~100 ms: 0xFF, Hi, Lo, Summe
+#     RX  → frei lassen   (offen/high = gefilterter Wert)
+#   Schwimmerschalter (Reed, 2 Draehte) oben im Zielcontainer: D5 (GPIO14) + G, interner Pull-up
+# Pumpe A → B/C schaltet Home Assistant ueber die Zigbee-Steckdose (siehe ~/esphome/ha/ibc-pumpe.yaml).
+# Stand 04.10.2026 — Notiz project_ibc_wasserstand
+
+substitutions:
+  name: ibc-wasser
+  friendly_name: IBC Wasser
+  # --- nach dem Einbau einmessen (Abstand Sensorunterkante → Wasser) ---
+  abstand_leer_mm: "1050"   # Container A leer (Sensor sieht den Boden)
+  abstand_voll_mm: "80"     # Container A randvoll
+  volumen_l: "1000"
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  comment: IBC A Fuellstand (A02YYUW) + Schwimmer Zielcontainer
+
+esp8266:
+  board: d1_mini
+
+logger:
+  level: INFO
+
+api:
+  encryption:
+    key: !secret ibc_api_key
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: IBC-Fallback
+    password: !secret ibc_ap_password
+
+captive_portal:
+
+uart:
+  id: uart_ultraschall
+  rx_pin: GPIO13            # D7
+  baud_rate: 9600
+
+sensor:
+  - platform: a02yyuw
+    id: abstand
+    name: Abstand Wasser
+    uart_id: uart_ultraschall
+    unit_of_measurement: mm
+    entity_category: diagnostic
+    filters:
+      - filter_out: nan
+      - median:               # einzelne Fehlechos (Wand, Tropfen) verwerfen
+          window_size: 15
+          send_every: 10
+          send_first_at: 5
+      - throttle: 30s
+
+  - platform: template
+    name: Füllstand
+    id: fuellstand_prozent
+    unit_of_measurement: "%"
+    icon: mdi:water-percent
+    accuracy_decimals: 0
+    state_class: measurement
+    update_interval: 30s
+    lambda: |-
+      if (isnan(id(abstand).state)) return NAN;
+      const float leer = ${abstand_leer_mm}, voll = ${abstand_voll_mm};
+      float p = (leer - id(abstand).state) / (leer - voll) * 100.0f;
+      if (p < 0) p = 0;
+      if (p > 100) p = 100;
+      return p;
+
+  - platform: template
+    name: Inhalt
+    id: inhalt_liter
+    unit_of_measurement: L
+    icon: mdi:barrel
+    accuracy_decimals: 0
+    state_class: measurement
+    device_class: volume_storage
+    update_interval: 30s
+    lambda: |-
+      if (isnan(id(fuellstand_prozent).state)) return NAN;
+      return id(fuellstand_prozent).state / 100.0f * ${volumen_l};   // IBC = Quader → linear
+
+  - platform: wifi_signal
+    name: WLAN-Signal
+    update_interval: 120s
+  - platform: uptime
+    name: Laufzeit
+    update_interval: 600s
+
+binary_sensor:
+  - platform: gpio
+    name: Zielcontainer voll
+    id: ziel_voll
+    pin:
+      number: GPIO14          # D5
+      mode: INPUT_PULLUP
+      inverted: false         # Schaltrichtung beim Einbau pruefen (Schwimmer oben = Kontakt zu/offen?)
+    device_class: moisture
+    filters:
+      - delayed_on: 5s        # Wellen beim Einpumpen nicht als „voll“ werten
+      - delayed_off: 30s

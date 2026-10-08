@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><title>IBC-Messblatt</title>
+<style>
+ body { font-family: "Liberation Sans", Arial, sans-serif; font-size: 9.5pt; }
+ h1 { font-size: 16pt; margin: 0 0 2pt 0; }
+ h2 { font-size: 12pt; margin: 8pt 0 3pt 0; border-bottom: 1px solid #000; }
+ table { border-collapse: collapse; width: 100%; }
+ td, th { border: 1px solid #000; padding: 2pt 4pt; vertical-align: top; }
+ th { background: #ddd; text-align: left; }
+ .feld { width: 26%; }
+ .nr { width: 5%; text-align: center; }
+ .klein { font-size: 9pt; }
+</style></head><body>
+
+<h1>IBC-Wasserstand – Messblatt</h1>
+<p class="klein">Stand 06.10.2026 · Messschieber + Zollstock · Werte in mm · Bei Unklarheit lieber Foto mit Zollstock daneben.</p>
+
+<h2>A) Container A – Ultraschallsensor im Schraubdeckel</h2>
+<table border="1" cellspacing="0" cellpadding="3" width="100%">
+<tr><th class="nr">#</th><th>Was messen</th><th>Wie / Hinweis</th><th class="feld">Messwert</th></tr>
+<tr><td class="nr">1</td><td><b>Sensorkopf-Durchmesser</b></td><td>Messschieber, dickste Stelle des runden Kopfs (ohne Kabel). Angenommen: 24,5</td><td>________ mm</td></tr>
+<tr><td class="nr">2</td><td><b>Wandstärke Schraubdeckel</b></td><td>Deckel abschrauben, Messschieber an der flachen Mitte, wo das Loch hin soll. Angenommen: 4</td><td>________ mm</td></tr>
+<tr><td class="nr">3</td><td>Deckel: flache Fläche innen (Ø)</td><td>Durchmesser der ebenen Fläche oben auf dem Deckel (ohne Griffrippen) – passt der Halterflansch Ø 60?</td><td>________ mm</td></tr>
+<tr><td class="nr">4</td><td><b>Abstand Deckeloberkante → Boden innen</b></td><td>Zollstock durch die Öffnung senkrecht bis auf den Boden; an der Deckel-Auflage ablesen. Wird „leer“-Wert.</td><td>________ mm</td></tr>
+<tr><td class="nr">5</td><td><b>Abstand Deckeloberkante → höchster Wasserstand</b></td><td>Bis wohin darf A maximal voll werden (Überlaufkante/Oberkante Behälter innen)? Wird „voll“-Wert.</td><td>________ mm</td></tr>
+<tr><td class="nr">6</td><td>Abstand Deckeloberkante → Wasser <i>jetzt</i></td><td>Zum Gegenprüfen der ersten Messung. Uhrzeit notieren.</td><td>________ mm &nbsp; um ____:____</td></tr>
+</table>
+
+<h2>B) Zielcontainer (B oder C) – Schwimmerschalter</h2>
+<table border="1" cellspacing="0" cellpadding="3" width="100%">
+<tr><th class="nr">#</th><th>Was messen</th><th>Wie / Hinweis</th><th class="feld">Messwert</th></tr>
+<tr><td class="nr">7</td><td><b>Gewinde-Ø Schwimmerschalter</b></td><td>Messschieber außen über das Gewinde. Angenommen: 16,5</td><td>________ mm</td></tr>
+<tr><td class="nr">8</td><td>Länge Schwimmer ab Gewinde</td><td>Wie weit steht der Schwimmer-Arm vom Gewinde ab (nach innen)?</td><td>________ mm</td></tr>
+<tr><td class="nr">9</td><td><b>Wandstärke Einfüllstutzen</b></td><td>Am Rand der Öffnung (Deckel ab), dort hängt der Halter ein. Angenommen: 6</td><td>________ mm</td></tr>
+<tr><td class="nr">10</td><td>Innen-Ø Einfüllstutzen</td><td>Passt Halter (22 mm breit) + Schwimmer durch?</td><td>________ mm</td></tr>
+<tr><td class="nr">11</td><td><b>Schalthöhe</b> unter Stutzenrand</td><td>Ab welcher Tiefe unter dem Rand soll „Ziel voll“ melden? (Wasser bis dahin = Pumpe stoppt). Angenommen: 120</td><td>________ mm</td></tr>
+<tr><td class="nr">12</td><td>Welcher Container wird zuerst voll?</td><td>Dort kommt der Schwimmer hin (B und C sind noch nicht verbunden).</td><td>&nbsp; B &nbsp;☐ &nbsp;&nbsp; C &nbsp;☐</td></tr>
+</table>
+
+<h2>C) Kabel und Montage</h2>
+<table border="1" cellspacing="0" cellpadding="3" width="100%">
+<tr><th class="nr">#</th><th>Was messen</th><th>Wie / Hinweis</th><th class="feld">Messwert</th></tr>
+<tr><td class="nr">13</td><td>Kabellänge Sensor</td><td>Reicht das Sensorkabel vom Deckel A bis zum Platz der D1-Box?</td><td>________ cm &nbsp; reicht ☐</td></tr>
+<tr><td class="nr">14</td><td>Abstand Deckel A → Schwimmer (B/C)</td><td>Kabelweg für den Schwimmerschalter zur D1-Box</td><td>________ cm</td></tr>
+<tr><td class="nr">15</td><td>Steckdose / USB-Netzteil</td><td>Wo bekommt der D1 mini Strom? Abstand zur Box.</td><td>________ cm</td></tr>
+<tr><td class="nr">16</td><td>Zigbee-Steckdose der Pumpe</td><td>Welche Steckdose (Name in HA / Aufkleber)? Draußen geeignet (IP44)?</td><td>________________</td></tr>
+</table>
+
+<p class="klein" style="margin-top:10pt">Fett = für den Druck der Halter nötig. 4 + 5 = Einmessen (Füllstand 0 % / 100 %). Danach: Werte an Claude, STL wird angepasst, dann PETG drucken.</p>
+</body></html>

@@ -1,0 +1,196 @@
+# IBC-Container B (mit C unten verbunden) — Solar-Knoten: Schwimmer „Ziel voll“ + Akkuspannung
+# Hardware: Wemos D1 mini (ESP8266) + 18650 Battery Shield V3 (rechtes, ohne USB-Buchse), Solarpanel 1 W + Z-Diode 6,2 V
+#   Versorgung: Shield 5V → D1 5V, GND → G   (NICHT den 3V-Ausgang des Shields)
+#   Akku +  (Halterkontakt) → 100 kΩ + 22 kΩ in Reihe → A0   (intern 220k/100k → Endwert ~4,42 V)
+#   D0 (GPIO16) → RST      Draht fuer den Tiefschlaf
+#   Schwimmer: D5 (GPIO14) + G, interner Pull-up. Einbau „oeffnet bei Wasser“:
+#              geschlossen = Wasser unten · offen = B voll ODER Kabel ab → beides meldet „voll“ (Pumpe gesperrt)
+# Ablauf: alle 15 min aufwachen, messen, an HA melden, schlafen. Laeuft die Pumpe (oder ist „IBC B wach halten“ an),
+#         bleibt der Knoten wach und meldet den Schwimmer sofort. Akku < 3,3 V → nur noch alle 2 h.
+# EINRICHTUNGSFENSTER: Nach Einstecken/Reset-Taste (also NICHT nach dem Tiefschlaf) bleibt er 10 min wach —
+#         zum Einbinden in HA, fuer OTA und Tests. Danach normaler Ablauf.
+# Schaltplan: ~/esphome/ibc-b-schaltplan.pdf · Stand 07.10.2026 — Notiz project_ibc_wasserstand
+
+substitutions:
+  name: ibc-b
+  friendly_name: IBC B
+  schlaf: 15min
+  schlaf_akku_schwach: 120min
+  akku_schwach_v: "3.3"
+  adc_faktor: "4.42"            # (122k + 220k + 100k) / 100k — beim Einmessen gegen Multimeter korrigieren
+  pumpe: switch.steckdose_ibc_wassercontainer_pumpe
+  wach_halten: input_boolean.ibc_b_wach_halten
+  einrichtung_dauer: 10min
+  max_wach: "3000"              # s — spaetestens nach 50 min trotzdem schlafen (HA stoppt die Pumpe nach 30 min)
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  comment: IBC B Schwimmer + Akku (Solar, Tiefschlaf)
+  on_boot:
+    priority: -100
+    then:
+      - if:
+          condition:
+            lambda: 'return ESP.getResetInfoPtr()->reason != REASON_DEEP_SLEEP_AWAKE;'
+          then:
+            - logger.log: "Start ohne Tiefschlaf (Strom/Reset) → Einrichtungsfenster 10 min"
+            - globals.set: { id: einrichtung, value: 'true' }
+            - deep_sleep.prevent: tiefschlaf
+            - delay: ${einrichtung_dauer}
+            - globals.set: { id: einrichtung, value: 'false' }
+            - script.execute: entscheiden
+
+globals:
+  - id: einrichtung
+    type: bool
+    initial_value: 'false'
+
+esp8266:
+  board: d1_mini
+
+logger:
+  level: INFO
+
+api:
+  encryption:
+    key: !secret ibc_b_api_key
+  reboot_timeout: 0s            # schlaeft ohnehin; kein Neustart, nur weil HA gerade nicht verbunden ist
+  on_client_connected:
+    - delay: 3s                 # HA schickt in dieser Zeit die Zustaende von Pumpe und „wach halten“
+    - script.execute: entscheiden
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  fast_connect: true
+  # manual_ip spart pro Aufwachen ~1–2 s DHCP. .196 ist in der FRITZ!Box fest vergeben (07.10.2026)
+  manual_ip:
+    static_ip: 192.168.178.196
+    gateway: 192.168.178.1
+    subnet: 255.255.255.0
+    dns1: 192.168.178.1
+  ap:
+    ssid: IBC-B-Fallback
+    password: !secret ibc_b_ap_password
+    ap_timeout: 2min
+
+captive_portal:
+
+deep_sleep:
+  id: tiefschlaf
+  run_duration: 30s             # Notbremse: findet er HA nicht, schlaeft er nach 30 s trotzdem
+  sleep_duration: ${schlaf}
+
+status_led:
+  pin:
+    number: GPIO2               # blaue LED auf dem ESP-Modul: zeigt WLAN-/API-Probleme
+    inverted: true
+
+binary_sensor:
+  - platform: gpio
+    id: ziel_voll
+    name: Zielcontainer voll
+    icon: mdi:waves-arrow-up
+    pin:
+      number: GPIO14            # D5
+      mode: INPUT_PULLUP
+    filters:
+      - delayed_on: 2s          # Wellenschlag nicht als „voll“ werten
+      - delayed_off: 5s
+
+  - platform: homeassistant
+    id: pumpe_laeuft
+    entity_id: ${pumpe}
+    internal: true
+    on_state:
+      - script.execute: entscheiden
+
+  - platform: homeassistant
+    id: wach_halten
+    entity_id: ${wach_halten}
+    internal: true
+    on_state:
+      - script.execute: entscheiden
+
+sensor:
+  - platform: adc
+    id: akku
+    name: Akku
+    pin: A0
+    update_interval: 60s        # nur relevant, solange er wach bleibt
+    samples: 8
+    force_update: true          # jede Meldung ist ein Lebenszeichen fuer HA (last_reported)
+    unit_of_measurement: V
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 2
+    filters:
+      - multiply: ${adc_faktor}
+
+  - platform: template
+    name: Akku Ladung
+    id: akku_prozent
+    unit_of_measurement: "%"
+    device_class: battery
+    accuracy_decimals: 0
+    update_interval: never
+    lambda: |-
+      // Li-Ion grob linear zwischen 3,3 V (0 %) und 4,15 V (100 %)
+      float v = id(akku).state;
+      if (isnan(v)) return NAN;
+      return clamp((v - 3.3f) / (4.15f - 3.3f) * 100.0f, 0.0f, 100.0f);
+
+  - platform: wifi_signal
+    name: WLAN-Signal
+    update_interval: 60s
+    entity_category: diagnostic
+
+  - platform: uptime
+    id: wachzeit
+    name: Wach seit
+    update_interval: 60s
+    entity_category: diagnostic
+
+script:
+  - id: entscheiden
+    mode: restart
+    then:
+      - component.update: akku
+      - component.update: akku_prozent
+      - delay: 1s               # Messwerte gehen raus, bevor geschlafen wird
+      - if:
+          condition:
+            or:
+              - lambda: 'return id(einrichtung);'
+              - binary_sensor.is_on: pumpe_laeuft
+              - binary_sensor.is_on: wach_halten
+          then:
+            - logger.log: "Einrichtung, Pumpe laeuft oder 'wach halten' an → bleibe wach"
+            - deep_sleep.prevent: tiefschlaf
+          else:
+            - deep_sleep.allow: tiefschlaf
+            - if:
+                condition:
+                  lambda: 'return !isnan(id(akku).state) && id(akku).state < ${akku_schwach_v};'
+                then:
+                  - logger.log: "Akku schwach → schlafe 2 h"
+                  - deep_sleep.enter:
+                      id: tiefschlaf
+                      sleep_duration: ${schlaf_akku_schwach}
+                else:
+                  - deep_sleep.enter: tiefschlaf
+
+interval:
+  - interval: 60s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(wachzeit).state > ${max_wach};'
+          then:
+            - logger.log: "Hoechstwachzeit erreicht → schlafe trotzdem"
+            - deep_sleep.allow: tiefschlaf
+            - deep_sleep.enter: tiefschlaf

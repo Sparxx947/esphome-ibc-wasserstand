@@ -1,0 +1,239 @@
+# IBC-Ueberlaufschutz: Pumpe A → B/C (2–3 m hoch) ueber Zigbee-Steckdose mit Leistungsmessung
+# ENTWURF 04.10.2026 — wird erst eingespielt, wenn der D1 mini laeuft (Entitaeten-IDs dann pruefen/ersetzen).
+# Platzhalter:
+#   switch.steckdose_ibc_wassercontainer_pumpe → Nous-Zigbee-Steckdose (Z2M, 0xa4c13819f1c0dd81), Power outage memory = off (07.10.)
+#   sensor.steckdose_ibc_wassercontainer_pumpe_power      → deren Leistung (W)
+#   sensor.ibc_wasser_fullstand → Fuellstand A in % (ESPHome „Füllstand“)
+#   binary_sensor.ibc_b_zielcontainer_voll → Schwimmer in B (eigener Solar-Knoten ibc-b, Tiefschlaf 15 min)
+#   sensor.ibc_b_akku                       → Akkuspannung B, force_update = Lebenszeichen (last_reported)
+# Push nur an Jens (notify.mobile_app_dein_handy).
+#
+# Regeln
+#   EIN : A ≥ 90 %  UND B hat sich in den letzten 2 min gemeldet  UND Ziel nicht voll  UND nicht gesperrt
+#         (B schlaeft sonst — die Pumpe startet deshalb beim naechsten Aufwachen von B; B bleibt dann wach)
+#   AUS : A ≤ 70 %  ODER Ziel voll  ODER Laufzeit 30 min  ODER Trockenlauf
+#   Trockenlauf: Leistung < 60 % der Normalleistung fuer 20 s  ODER  nach 10 min kein Absinken um ≥ 2 %
+#   WARNUNG: A ≥ 97 % fuer 2 min → Push (A hat keinen Ueberlauf)
+#   Sperre (input_boolean) nach Trockenlauf/Zeitueberschreitung → nur von Hand loesen
+# Normalleistung der Pumpe beim ersten Lauf ablesen und unten bei pumpe_normal_w eintragen.
+
+input_boolean:
+  ibc_pumpe_gesperrt:
+    name: IBC-Pumpe gesperrt
+    icon: mdi:pump-off
+  # ibc_b_wach_halten existiert schon als UI-Helfer (angelegt 07.10.2026) — hier NICHT nochmal definieren
+
+input_number:
+  ibc_a_startstand:
+    name: IBC A Stand bei Pumpenstart
+    min: 0
+    max: 100
+    step: 0.5
+    unit_of_measurement: "%"
+    mode: box
+
+automation:
+  - id: ibc_pumpe_ein
+    alias: "IBC: Pumpe EIN (A fast voll)"
+    mode: single
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.ibc_wasser_fullstand
+        above: 90
+      - trigger: state            # B ist gerade aufgewacht und hat gemeldet
+        entity_id: sensor.ibc_b_akku
+    conditions:
+      - condition: numeric_state
+        entity_id: sensor.ibc_wasser_fullstand
+        above: 90
+      - condition: template       # B wach und aktuell, sonst sieht niemand den Schwimmer
+        value_template: >-
+          {{ states.sensor.ibc_b_akku is not none and
+             (now() - states.sensor.ibc_b_akku.last_reported).total_seconds() < 120 }}
+      - condition: state
+        entity_id: binary_sensor.ibc_b_zielcontainer_voll
+        state: "off"
+      - condition: state
+        entity_id: input_boolean.ibc_pumpe_gesperrt
+        state: "off"
+      - condition: state
+        entity_id: switch.steckdose_ibc_wassercontainer_pumpe
+        state: "off"
+    actions:
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.ibc_a_startstand
+        data:
+          value: "{{ states('sensor.ibc_wasser_fullstand') | float(0) }}"
+      - action: switch.turn_on
+        target:
+          entity_id: switch.steckdose_ibc_wassercontainer_pumpe
+
+  - id: ibc_pumpe_aus_normal
+    alias: "IBC: Pumpe AUS (A ausreichend leer)"
+    mode: single
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.ibc_wasser_fullstand
+        below: 70
+    conditions:
+      - condition: state
+        entity_id: switch.steckdose_ibc_wassercontainer_pumpe
+        state: "on"
+    actions:
+      - action: switch.turn_off
+        target:
+          entity_id: switch.steckdose_ibc_wassercontainer_pumpe
+
+  - id: ibc_pumpe_aus_ziel_voll
+    alias: "IBC: Pumpe AUS + Meldung (Zielcontainer voll)"
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.ibc_b_zielcontainer_voll
+        to: "on"
+    actions:
+      - action: switch.turn_off
+        target:
+          entity_id: switch.steckdose_ibc_wassercontainer_pumpe
+      - action: notify.mobile_app_dein_handy
+        data:
+          title: "IBC: Zielcontainer voll"
+          message: >-
+            Pumpe gestoppt. Container A steht bei {{ states('sensor.ibc_wasser_fullstand') }} % —
+            läuft er weiter voll, gibt es keinen Platz mehr.
+
+  - id: ibc_pumpe_sicherung
+    alias: "IBC: Pumpe Sicherung (Trockenlauf / Laufzeit)"
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: switch.steckdose_ibc_wassercontainer_pumpe
+        to: "on"
+        for: "00:30:00"
+        id: laufzeit
+      - trigger: numeric_state
+        entity_id: sensor.steckdose_ibc_wassercontainer_pumpe_power
+        below: 20          # ERSETZEN: ca. 60 % von pumpe_normal_w
+        for: "00:00:20"
+        id: leistung
+      - trigger: state
+        entity_id: switch.steckdose_ibc_wassercontainer_pumpe
+        to: "on"
+        for: "00:10:00"
+        id: kein_absinken
+    conditions:
+      - condition: state
+        entity_id: switch.steckdose_ibc_wassercontainer_pumpe
+        state: "on"
+      - condition: or
+        conditions:
+          - condition: trigger
+            id: [laufzeit, leistung]
+          - condition: template
+            value_template: >-
+              {{ trigger.id == 'kein_absinken' and
+                 (states('input_number.ibc_a_startstand') | float(0))
+                 - (states('sensor.ibc_wasser_fullstand') | float(0)) < 2 }}
+    actions:
+      - action: switch.turn_off
+        target:
+          entity_id: switch.steckdose_ibc_wassercontainer_pumpe
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.ibc_pumpe_gesperrt
+      - action: notify.mobile_app_dein_handy
+        data:
+          title: "IBC: Pumpe gesperrt"
+          message: >-
+            Grund: {{ {'laufzeit':'30 min Laufzeit erreicht',
+                       'leistung':'Leistung zu niedrig (Trockenlauf?)',
+                       'kein_absinken':'A sinkt nicht (Leitung zu / Pumpe zieht Luft?)'}[trigger.id] }}.
+            Bitte nachsehen, dann „IBC-Pumpe gesperrt“ von Hand ausschalten.
+
+  - id: ibc_sensor_ausfall
+    alias: "IBC: Füllstandsensor ausgefallen"
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: sensor.ibc_wasser_fullstand
+        to: unavailable
+        for: "00:15:00"
+    actions:
+      - action: switch.turn_off
+        target:
+          entity_id: switch.steckdose_ibc_wassercontainer_pumpe
+      - action: notify.mobile_app_dein_handy
+        data:
+          title: "IBC: Füllstand fehlt"
+          message: "Seit 15 min kein Wert vom D1 mini — Pumpe vorsorglich aus."
+
+  # Knoten B laeuft auf Akku und schlaeft. Waehrend die Pumpe laeuft, bleibt er wach und meldet mindestens jede Minute.
+  - id: ibc_pumpe_aus_b_stumm
+    alias: "IBC: Pumpe AUS (Knoten B meldet nicht)"
+    mode: single
+    triggers:
+      - trigger: template
+        value_template: >-
+          {{ is_state('switch.steckdose_ibc_wassercontainer_pumpe', 'on') and
+             (states.sensor.ibc_b_akku is none or
+              (now() - states.sensor.ibc_b_akku.last_reported).total_seconds() > 180 or
+              states('binary_sensor.ibc_b_zielcontainer_voll') in ['unavailable', 'unknown']) }}
+    actions:
+      - action: switch.turn_off
+        target:
+          entity_id: switch.steckdose_ibc_wassercontainer_pumpe
+      - action: notify.mobile_app_dein_handy
+        data:
+          title: "IBC: Pumpe gestoppt"
+          message: "Knoten B meldet sich nicht mehr — ohne Schwimmer-Überwachung pumpt die Pumpe nicht."
+
+  - id: ibc_b_lebenszeichen
+    alias: "IBC: Knoten B seit 40 min still"
+    mode: single
+    triggers:
+      - trigger: template
+        value_template: >-
+          {{ states.sensor.ibc_b_akku is none or
+             (now() - states.sensor.ibc_b_akku.last_reported).total_seconds() > 2400 }}
+    actions:
+      - action: notify.mobile_app_dein_handy
+        data:
+          title: "IBC B meldet sich nicht"
+          message: >-
+            Seit über 40 min kein Wert vom Solar-Knoten B (letzte Akkuspannung {{ states('sensor.ibc_b_akku') }} V).
+            Die Pumpe startet so lange nicht. Akku leer? WLAN?
+
+  - id: ibc_b_akku_schwach
+    alias: "IBC: Akku Knoten B schwach"
+    mode: single
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.ibc_b_akku
+        below: 3.4
+    actions:
+      - action: notify.mobile_app_dein_handy
+        data:
+          title: "IBC B: Akku schwach"
+          message: >-
+            Akku {{ states('sensor.ibc_b_akku') }} V — der Knoten meldet sich ab 3,3 V nur noch alle 2 h.
+            Panel verschattet oder verschmutzt?
+
+  # Container A hat KEINEN Ueberlauf (Jens 07.10.): randvoll laeuft er am Einfuellstutzen ueber, und das Wasser steht
+  # am Sensorflansch an. Meldet, wenn A trotz Logik weiter steigt (Pumpe gesperrt, Ziel voll, Pumpe defekt).
+  - id: ibc_a_uebervoll
+    alias: "IBC: A fast randvoll"
+    mode: single
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.ibc_wasser_fullstand
+        above: 97
+        for: "00:02:00"
+    actions:
+      - action: notify.mobile_app_dein_handy
+        data:
+          title: "IBC A fast randvoll"
+          message: >-
+            A steht bei {{ states('sensor.ibc_wasser_fullstand') }} % — kein Ueberlauf vorhanden.
+            Pumpe {{ states('switch.steckdose_ibc_wassercontainer_pumpe') }}, Sperre {{ states('input_boolean.ibc_pumpe_gesperrt') }},
+            Ziel voll {{ states('binary_sensor.ibc_b_zielcontainer_voll') }}.
