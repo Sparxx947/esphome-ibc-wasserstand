@@ -14,7 +14,7 @@ substitutions:
   friendly_name: IBC Wasser
   # --- nach dem Einbau einmessen (Abstand Sensorunterkante → Wasser) ---
   abstand_leer_mm: "1050"   # Container A leer (Sensor sieht den Boden)
-  abstand_voll_mm: "80"     # Container A randvoll
+  abstand_voll_mm: "50"     # 100 % = 5 cm unter IBC-Oberseite (kein Ueberlauf; Sensor blind < 30 mm)
   volumen_l: "1000"
 
 esphome:
