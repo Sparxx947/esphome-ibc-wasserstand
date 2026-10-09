@@ -42,7 +42,7 @@ If node B does not report, the pump does not start. After a power failure the pl
 
 ---
 
-## 2. Status (as of 08.10.2026)
+## 2. Status (as of 09.10.2026)
 
 | Area | Status | Date / note |
 |---|---|---|
@@ -57,6 +57,8 @@ If node B does not report, the pump does not start. After a power failure the pl
 | Node B internal wiring (D0–RST, A0 divider, float) | ✅ done, bench test of float passed | 08.10. 17:32 |
 | Float holder B | ✅ printed | 08.10. |
 | Enclosure B | ⬜ ready to print, not yet printed | — |
+| Lid gasket B (TPU) | ✅ designed, collision-checked; ⬜ not printed | 09.10. |
+| Lid screws B 3 × 12 | ⬜ missing, to buy | — |
 | Battery B | 🟡 e-cigarette battery in self-discharge test (reference 4.137 V) | evaluation 09.10. 14:30 |
 | Solar panel, Zener diode, EVE battery, panel cable | ⬜ not ordered, reichelt order planned | 02.11. |
 | HA pump package `ha/ibc-pumpe.yaml` | ⬜ draft, **not deployed** (no IBC automation exists in HA yet) | — |
@@ -101,7 +103,8 @@ Prices and part numbers only where documented in the notes. "—" = not noted.
 | Float holder | 1 | `ibc_schwimmer_halter.stl` | self-printed, PETG | printed 08.10. |
 | Enclosure + lid | 1 + 1 | `ibc_b_gehaeuse.stl` + `ibc_b_deckel.stl` (outside 130 × 74 × 32 mm + tabs) | self-printed, PETG | ready to print, not printed |
 | Cable gland | 2 | M12 from the Seki pack (see above): float + panel | see above | ordered |
-| Self-tapping screws, lid | 4 | 3 × 12 | — | *unresolved* |
+| Screws, lid | 4 | 3 × 12, self-tapping **or** chipboard screw (bites into the PETG bosses with 2.5 mm hole), stainless A2 or zinc-plated | — | missing, to buy |
+| Lid gasket | 1 | `ibc_b_dichtung.stl`, TPU 95A (~2.8 g). Alternative: self-adhesive EPDM foam tape ~3 mm wide, 2–3 mm thick | self-printed | designed 09.10., not printed |
 | Terminal inside | 1 | screw terminal/connector for float and panel (extension inside the enclosure, not outside) | — | open |
 | Mounting | — | cable ties (up to 5 mm) or 4 mm screw through the tabs onto the cage | — | — |
 | External antenna | — | only if the Wi-Fi test at the location is poor (fallback: D1 mini Pro with antenna socket) | — | deliberately not bought |
@@ -175,6 +178,7 @@ Sources: [`gehaeuse/ibc-gehaeuse.scad`](gehaeuse/ibc-gehaeuse.scad) (A and float
 | `ibc_schwimmer_halter.stl` | **B:** hangs on the filler neck, carries the float switch | printed 08.10. | web 32 wide/5 thick, hook over neck wall 11.1 + 0.8 clearance, hole Ø 19.5 at 120 mm depth, plate 6 mm there; cable slots for cable ties. Print lying flat |
 | `ibc_b_gehaeuse.stl` | **B:** shield + D1 mini | ready to print, **not printed** | outside 130 × 74 × 32 + tabs, wall 3 mm, 2× M12 in the **lower** end wall, drain Ø 2.5, rails for shield (99.28 × 29.46, USB 6.74, height 25 – measured) and D1, terminal strip for the resistors |
 | `ibc_b_deckel.stl` | lid for B | ready to print | lip, 4× self-tapping screw 3 × 12. Print: lid plate down |
+| `ibc_b_dichtung.stl` | lid gasket for B (TPU) | designed 09.10., not printed | frame 1.6 mm on the 3 mm wall top, bead 0.8 × 0.6 on the wall centre, 4 corner ears Ø 7.4 with Ø 3.4 hole over the bosses. Print: TPU 95A, flat (bead up), 100 % infill, ~20 mm/s |
 | `ibc_sensor_halter.stl`, `ibc_sensor_abdeckung.stl` | separate holder for the sensor (flange 104 × 60) | **replaced** by the combined enclosure | do not print any more |
 | `vorschau_ibc.png` | preview image | **outdated** | still shows the round flange and the old D1 box |
 
@@ -197,11 +201,21 @@ Infill and wall count are not noted for the IBC parts (for the Optolink box it w
 Resistors into the terminal strip. Float and panel through the two M12 at the bottom, extensions only inside at a terminal.
 Mounting orientation: hanging, glands facing down, lid facing forward.
 
+**Gasket B:** Place the TPU frame on the enclosure rim with the bead facing up, put the lid on, tighten the 4 screws 3 × 12 evenly
+crosswise until the bead is compressed (do not overtighten, the bosses can crack). With lid 2.4 mm and gasket ~2 mm a 12 mm screw
+still grips ~7.5 mm in the boss. The gasket leaves the inside free for the lid lip (0.35 mm clearance, 0.3 mm at the corner ears).
+Instead of the printed gasket, self-adhesive EPDM foam tape (~3 mm wide) on the wall top also works.
+**No acetic-cure silicone** (bathroom silicone) inside the enclosure: it outgasses acetic acid and corrodes contacts. If silicone,
+then neutral-cure and only for joints that stay closed (do not glue the lid shut).
+
 **Lessons from the design:**
 - The sensor is **not** a round head but a rectangular housing with two transducers and two tabs. The initial assumption of Ø 24.5 was wrong; the holders were redesigned.
 - One window for both transducers instead of two holes: then the transducer spacing does not matter.
 - Check for collisions before STL export: lid lip vs. partition wall (cut-out needed), nuts vs. wall thickness, boss screws vs. lip.
   In the combined enclosure only contact surfaces remain.
+  For gasket B this is proven by intersection (export `TEIL = "pruef_gehaeuse"` / `"pruef_deckel"` and measure the volume):
+  enclosure 0 mm³ (contact only), lid only the bead (~186 mm³ = intended compression).
+- Circles that touch an edge only tangentially produce a non-manifold mesh (slicer warning), so the corner ears overlap 0.2 mm into the wall.
 - Wall thickness at glands: a standard M12 has ~8–9 mm of thread; wall plus nut may be at most ~3 mm thick.
 - The thread length of the Seki glands is not stated in the listing. Measure after delivery, then adjust `k_m12_wand` in the SCAD if necessary.
 
@@ -381,6 +395,7 @@ The lock is released **only manually**: switch off `IBC-Pumpe gesperrt` (IBC pum
 │   ├── ibc_schwimmer_halter.stl  B – float holder       (printed)
 │   ├── ibc_b_gehaeuse.stl        B – enclosure          (ready to print)
 │   ├── ibc_b_deckel.stl          B – lid                (ready to print)
+│   ├── ibc_b_dichtung.stl        B – lid gasket TPU     (designed)
 │   ├── ibc_sensor_halter.stl     replaced, do not print
 │   ├── ibc_sensor_abdeckung.stl  replaced, do not print
 │   └── vorschau_ibc.png          outdated preview

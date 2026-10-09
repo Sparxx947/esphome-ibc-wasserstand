@@ -14,6 +14,7 @@ Back to the [README](../README.en.md). Summarised from the project notes.
 | 07.10. | Float measured (thread 19, neck wall 11.1, switching height 120), B stays without a cap → float holder ready to print. Shield polarity checked on both shields. Combined enclosure A **printed** (2nd revision, wall at M12 6.4 mm) → hot glue instead of counterboring |
 | 07.10. evening | Enclosure B, schematic B, firmware B finished. Node B **flashed** (.196 static), added to HA, helper `ibc_b_wach_halten` (keep awake) created, test keep awake / deep sleep ✔. The ESPHome Builder can be controlled via API. Amazon basket (multimeter UT139C, M12) ordered by Jens; remaining reichelt items postponed to **02.11.** (absence 23.10.–01.11.) |
 | 08.10. | E-cig battery charged, reference value 4.137 V. 100 k + 22 k available. Float holder **printed**. Internal wiring B finished, bench test float ✔ (17:32) |
+| 09.10. | **TPU lid gasket B** designed (`ibc_b_dichtung.stl`), collision checked by intersection, mesh cleaned. Lid screws 3 × 12 still missing |
 
 ## Rejected approaches
 

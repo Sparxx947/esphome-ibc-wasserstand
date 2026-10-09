@@ -83,6 +83,30 @@ module deckel() {
     }
 }
 
+// TPU-Dichtung (09.10.2026, Jens): Rahmen auf der 3-mm-Wandoberkante + Ohren ueber den Eckdomen (Schraubenloch),
+// innen frei fuer die Deckellippe (0,35 mm Luft), Ohren passen in die Lippen-Aussparung (Ø dom_d+1). Wulst oben
+// auf Wandmitte wird beim Anziehen gequetscht. Druck: TPU 95A, liegend, 100 % Fuellung, langsam (~20 mm/s).
+// Schraube: Deckel 2,4 + Dichtung 1,6 (+Wulst) → 3x12 greift noch ~7,5 mm im Dom.
+dicht_t = 1.6;  wulst_b = 0.8;  wulst_h = 0.6;  ohr_d = dom_d + 0.4;   // Ohr ueberlappt 0,2 mm in die Wand (sauberes Netz), Lippen-Aussparung r=4 → 0,3 mm Luft
+module dichtung() {
+    difference() {
+        union() {
+            difference() { rbox(al, ab, dicht_t, 3); translate([-il/2, -ib/2, -1]) cube([il, ib, dicht_t + 2]); }
+            for (p=dome()) translate([p[0], p[1], 0]) cylinder(d=ohr_d, h=dicht_t);
+            // Wulst auf der Wandmitte (1,5 mm von aussen)
+            translate([0,0,dicht_t - 0.01]) difference() {
+                rbox(al - 3 + wulst_b, ab - 3 + wulst_b, wulst_h, 1.5 + wulst_b/2);
+                translate([0,0,-1]) rbox(al - 3 - wulst_b, ab - 3 - wulst_b, wulst_h + 2, max(0.5, 1.5 - wulst_b/2));
+            }
+        }
+        for (p=dome()) translate([p[0], p[1], -1]) cylinder(d=3.4, h=dicht_t + wulst_h + 2);
+    }
+}
+
+if (TEIL=="dichtung") dichtung();
+// Kollisionspruefung: muss LEER sein (Dichtung auf dem Rand, Deckel darauf)
+if (TEIL=="pruef_deckel") intersection() { translate([0,0,ah]) dichtung(); translate([0,0,ah + dicht_t]) deckel(); }
+if (TEIL=="pruef_gehaeuse") intersection() { translate([0,0,ah]) dichtung(); gehaeuse(); }
 if (TEIL=="gehaeuse") gehaeuse();
 if (TEIL=="deckel") rotate([180,0,0]) deckel();     // Druck: Deckelplatte unten
 if (TEIL=="alle") { gehaeuse(); translate([0, ab + 30, 0]) rotate([180,0,0]) deckel(); }

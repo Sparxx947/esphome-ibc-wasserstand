@@ -42,7 +42,7 @@ Meldet sich Knoten B nicht, startet die Pumpe nicht. Nach einem Stromausfall ble
 
 ---
 
-## 2. Status (Stand 08.10.2026)
+## 2. Status (Stand 09.10.2026)
 
 | Bereich | Status | Datum / Hinweis |
 |---|---|---|
@@ -57,6 +57,8 @@ Meldet sich Knoten B nicht, startet die Pumpe nicht. Nach einem Stromausfall ble
 | Knoten B Innenverdrahtung (D0–RST, A0-Teiler, Schwimmer) | ✅ fertig, Tischtest Schwimmer bestanden | 08.10. 17:32 |
 | Schwimmerhalter B | ✅ gedruckt | 08.10. |
 | Gehäuse B | ⬜ druckfertig, noch nicht gedruckt | — |
+| Deckeldichtung B (TPU) | ✅ konstruiert, Kollision geprüft; ⬜ nicht gedruckt | 09.10. |
+| Deckelschrauben B 3 × 12 | ⬜ fehlen, kaufen | — |
 | Akku B | 🟡 E-Zigarettenakku im Selbstentladetest (Bezug 4,137 V) | Bewertung 09.10. 14:30 |
 | Solarpanel, Z-Diode, EVE-Akku, Panelkabel | ⬜ nicht bestellt, reichelt-Bestellung geplant | 02.11. |
 | HA-Pumpenpaket `ha/ibc-pumpe.yaml` | ⬜ Entwurf, **nicht eingespielt** (in HA existiert noch keine IBC-Automation) | — |
@@ -101,7 +103,8 @@ Preise und Artikelnummern nur dort, wo sie in den Notizen belegt sind. „—“
 | Schwimmerhalter | 1 | `ibc_schwimmer_halter.stl` | Eigendruck, PETG | gedruckt 08.10. |
 | Gehäuse + Deckel | 1 + 1 | `ibc_b_gehaeuse.stl` + `ibc_b_deckel.stl` (außen 130 × 74 × 32 mm + Laschen) | Eigendruck, PETG | druckfertig, nicht gedruckt |
 | Kabelverschraubung | 2 | M12 aus dem Seki-Pack (s. o.): Schwimmer + Panel | s. o. | bestellt |
-| Blechschrauben Deckel | 4 | 3 × 12 | — | *ungeklärt* |
+| Schrauben Deckel | 4 | 3 × 12, Blech- **oder** Spanplattenschraube (beißt in PETG-Dome mit 2,5-mm-Loch), Edelstahl A2 oder verzinkt | — | fehlen, kaufen |
+| Deckeldichtung | 1 | `ibc_b_dichtung.stl`, TPU 95A (~2,8 g). Alternative: selbstklebendes EPDM-Moosgummiband ~3 mm breit, 2–3 mm dick | Eigendruck | konstruiert 09.10., nicht gedruckt |
 | Klemme innen | 1 | Schraubklemme/Stecker für Schwimmer und Panel (Verlängerung innen im Gehäuse, nicht draußen) | — | offen |
 | Befestigung | — | Kabelbinder (bis 5 mm) oder Schraube 4 mm durch die Laschen an den Käfig | — | — |
 | Externe Antenne | — | erst, wenn der WLAN-Test am Standort schlecht ist (Reserve: D1 mini Pro mit Antennenbuchse) | — | bewusst nicht gekauft |
@@ -175,6 +178,7 @@ Quellen: [`gehaeuse/ibc-gehaeuse.scad`](gehaeuse/ibc-gehaeuse.scad) (A und Schwi
 | `ibc_schwimmer_halter.stl` | **B:** hängt am Einfüllstutzen, trägt den Schwimmerschalter | gedruckt 08.10. | Steg 32 breit/5 dick, Haken über Stutzenwand 11,1 + 0,8 Luft, Loch Ø 19,5 in 120 mm Tiefe, Platte dort 6 mm; Kabelschlitze für Kabelbinder. Flach liegend drucken |
 | `ibc_b_gehaeuse.stl` | **B:** Shield + D1 mini | druckfertig, **nicht gedruckt** | außen 130 × 74 × 32 + Laschen, Wand 3 mm, 2× M12 in der **unteren** Stirnwand, Ablauf Ø 2,5, Leisten für Shield (99,28 × 29,46, USB 6,74, Höhe 25 – gemessen) und D1, Klemmleiste für die Widerstände |
 | `ibc_b_deckel.stl` | Deckel zu B | druckfertig | Lippe, 4× Blechschraube 3 × 12. Druck: Deckelplatte unten |
+| `ibc_b_dichtung.stl` | Deckeldichtung zu B (TPU) | konstruiert 09.10., nicht gedruckt | Rahmen 1,6 mm auf der 3-mm-Wandoberkante, Wulst 0,8 × 0,6 auf Wandmitte, 4 Eckohren Ø 7,4 mit Loch Ø 3,4 über den Domen. Druck: TPU 95A, liegend (Wulst oben), 100 % Füllung, ~20 mm/s |
 | `ibc_sensor_halter.stl`, `ibc_sensor_abdeckung.stl` | Einzelhalter für den Sensor (Flansch 104 × 60) | **ersetzt** durch das Kombi-Gehäuse | nicht mehr drucken |
 | `vorschau_ibc.png` | Vorschaubild | **veraltet** | zeigt noch den runden Flansch und die alte D1-Box |
 
@@ -197,10 +201,20 @@ Füllung und Wandzahl sind für IBC nicht notiert (bei der Optolink-Box waren es
 Widerstände in die Klemmleiste. Schwimmer und Panel durch die beiden M12 unten, Verlängerungen nur innen an einer Klemme.
 Einbaulage: hängend, Verschraubungen nach unten, Deckel nach vorn.
 
+**Dichtung B:** TPU-Rahmen mit dem Wulst nach oben auf den Gehäuserand legen, Deckel darauf, die 4 Schrauben 3 × 12 über Kreuz
+gleichmäßig anziehen, bis der Wulst gequetscht ist (nicht überdrehen, sonst reißen die Dome). Mit Deckel 2,4 mm und Dichtung ~2 mm
+greift eine 12-mm-Schraube noch ~7,5 mm im Dom. Die Dichtung ist innen frei für die Deckellippe (0,35 mm Luft, an den Eckohren 0,3 mm).
+Statt der gedruckten Dichtung geht auch selbstklebendes EPDM-Moosgummiband (~3 mm breit) auf der Wandoberkante.
+**Kein essigvernetzendes Silikon** (Bad-Silikon) im Gehäuse: Es gast Essigsäure aus und lässt Kontakte korrodieren. Wenn Silikon,
+dann neutralvernetzend und nur für Fugen, die zu bleiben (nicht den Deckel verkleben).
+
 **Lehren aus der Konstruktion:**
 - Der Sensor ist **kein** runder Kopf, sondern ein Rechteckgehäuse mit zwei Wandlern und zwei Laschen. Die anfängliche Annahme Ø 24,5 war falsch, die Halter wurden neu konstruiert.
 - Ein Fenster für beide Wandler statt zweier Löcher: Dann spielt der Wandlerabstand keine Rolle.
 - Vor dem STL-Export Kollisionen prüfen: Deckellippe gegen Trennwand (Aussparung nötig), Muttern gegen Wandstärke, Domschrauben gegen Lippe.
+  Für die Dichtung B per Schnittmenge belegt (`TEIL = "pruef_gehaeuse"` / `"pruef_deckel"` exportieren und das Volumen messen):
+  Gehäuse 0 mm³ (nur Berührung), Deckel nur der Wulst (~186 mm³ = gewollte Quetschung).
+- Kreise, die eine Kante nur tangential berühren, ergeben ein nicht-manifoldes Netz (Slicer-Warnung). Deshalb überlappen die Eckohren 0,2 mm in die Wand.
   Beim Kombi-Gehäuse sind nur Berührflächen übrig.
 - Wandstärke an Verschraubungen: Standard-M12 hat ~8–9 mm Gewinde, die Wand darf samt Mutter höchstens ~3 mm dick sein.
 - Die Gewindelänge der Seki-Verschraubungen ist im Angebot nicht angegeben. Nach Lieferung messen, dann ggf. `k_m12_wand` im SCAD anpassen.
@@ -379,6 +393,7 @@ Die Sperre wird **nur von Hand** gelöst: `IBC-Pumpe gesperrt` ausschalten.
 │   ├── ibc_schwimmer_halter.stl  B – Schwimmerhalter    (gedruckt)
 │   ├── ibc_b_gehaeuse.stl        B – Gehäuse            (druckfertig)
 │   ├── ibc_b_deckel.stl          B – Deckel             (druckfertig)
+│   ├── ibc_b_dichtung.stl        B – Deckeldichtung TPU (konstruiert)
 │   ├── ibc_sensor_halter.stl     ersetzt, nicht drucken
 │   ├── ibc_sensor_abdeckung.stl  ersetzt, nicht drucken
 │   └── vorschau_ibc.png          veraltete Vorschau
