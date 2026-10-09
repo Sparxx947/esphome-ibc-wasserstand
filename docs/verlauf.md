@@ -14,6 +14,7 @@ Zurück zur [README](../README.md). Zusammengefasst aus den Projektnotizen.
 | 07.10. | Schwimmer vermessen (Gewinde 19, Stutzenwand 11,1, Schalthöhe 120), B bleibt ohne Deckel → Schwimmerhalter druckfertig. Shield-Polung an beiden Shields geprüft. Kombi-Gehäuse A **gedruckt** (2. Fassung, Wand an M12 6,4 mm) → Heißkleber statt Aussenken |
 | 07.10. abends | Gehäuse B, Schaltplan B, Firmware B fertig. Knoten B **geflasht** (.196 fest), in HA aufgenommen, Helfer `ibc_b_wach_halten` angelegt, Test wach halten / Tiefschlaf ✔. ESPHome Builder lässt sich per API steuern. Amazon-Korb (Multimeter UT139C, M12) von Jens bestellt; reichelt-Rest auf **02.11.** verschoben (Abwesenheit 23.10.–01.11.) |
 | 08.10. | E-Zig-Akku geladen, Bezugswert 4,137 V. 100 k + 22 k vorhanden. Schwimmerhalter **gedruckt**. Innenverdrahtung B fertig, Tischtest Schwimmer ✔ (17:32) |
+| 09.10. | **TPU-Deckeldichtung B** konstruiert (`ibc_b_dichtung.stl`), Kollision per Schnittmenge geprüft, Netz bereinigt. Deckelschrauben 3 × 12 fehlen noch |
 
 ## Verworfene Wege
 
