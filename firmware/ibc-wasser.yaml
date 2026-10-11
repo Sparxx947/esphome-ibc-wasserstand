@@ -1,13 +1,14 @@
-# IBC-Wassercontainer A (1000 l, ueberdacht draussen) — Fuellstand + Schwimmer „Ziel voll“
+# IBC-Wassercontainer A (1000 l, ueberdacht draussen) — Fuellstand
 # Hardware: Wemos D1 mini V3.0.0 (ESP8266)
 #   Ultraschall A02-Typ (UART, 3–450 cm, IP67, 60° Abstrahlwinkel), mittig im Deckel von A, schaut senkrecht nach unten
 #     VCC → 3V3   (Sensor kann 3,3–5 V; an 3,3 V liegt auch sein TX-Pegel bei 3,3 V → ESP-sicher)
 #     GND → G
 #     TX  → D7 (GPIO13)   Sensor sendet alle ~100 ms: 0xFF, Hi, Lo, Summe
 #     RX  → frei lassen   (offen/high = gefilterter Wert)
-#   Schwimmerschalter (Reed, 2 Draehte) oben im Zielcontainer: D5 (GPIO14) + G, interner Pull-up
+#   Schwimmer „Ziel voll“ sitzt seit 07.10. an Knoten B (ibc-b.yaml), NICHT mehr hier (entfernt 10.10.)
 # Pumpe A → B/C schaltet Home Assistant ueber die Zigbee-Steckdose (siehe ~/esphome/ha/ibc-pumpe.yaml).
 # Stand 04.10.2026 — Notiz project_ibc_wasserstand
+# 11.10.: debug + Neustart-Grund (A startete ~1x/h neu; Verdacht Unterspannung am langen USB-Kabel, unbelegt)
 
 substitutions:
   name: ibc-wasser
@@ -20,7 +21,7 @@ substitutions:
 esphome:
   name: ${name}
   friendly_name: ${friendly_name}
-  comment: IBC A Fuellstand (A02YYUW) + Schwimmer Zielcontainer
+  comment: IBC A Fuellstand (A02YYUW)
 
 esp8266:
   board: d1_mini
@@ -43,6 +44,15 @@ wifi:
     password: !secret ibc_ap_password
 
 captive_portal:
+
+debug:
+  update_interval: 60s
+
+text_sensor:
+  - platform: debug
+    reset_reason:
+      name: Neustart-Grund
+      entity_category: diagnostic
 
 uart:
   id: uart_ultraschall
@@ -99,16 +109,8 @@ sensor:
   - platform: uptime
     name: Laufzeit
     update_interval: 600s
+  - platform: debug
+    free:
+      name: Freier Speicher
+      entity_category: diagnostic
 
-binary_sensor:
-  - platform: gpio
-    name: Zielcontainer voll
-    id: ziel_voll
-    pin:
-      number: GPIO14          # D5
-      mode: INPUT_PULLUP
-      inverted: false         # Schaltrichtung beim Einbau pruefen (Schwimmer oben = Kontakt zu/offen?)
-    device_class: moisture
-    filters:
-      - delayed_on: 5s        # Wellen beim Einpumpen nicht als „voll“ werten
-      - delayed_off: 30s

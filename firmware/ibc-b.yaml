@@ -67,7 +67,9 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   fast_connect: true
+  power_save_mode: none         # 10.10.: Test — mit Stromsparen kamen nur Rundrufe an, kein Ping/keine API
   # manual_ip spart pro Aufwachen ~1–2 s DHCP. .196 ist in der FRITZ!Box fest vergeben (07.10.2026)
+  # 11.10.: DHCP-Test vom 10.10. zurueckgenommen (half nicht; Erreichbarkeit kam 11.10. 00:00 von selbst wieder)
   manual_ip:
     static_ip: 192.168.178.196
     gateway: 192.168.178.1

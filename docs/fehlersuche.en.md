@@ -8,7 +8,7 @@ Back to the [README](../README.en.md). Known failure patterns from the project h
 
 | Symptom | Cause | Solution |
 |---|---|---|
-| `Zielcontainer voll` (target container full) on A is permanently **on** | The float input GPIO14 is open (internal pull-up). The float has been at node B since 07.10. | Delete the `binary_sensor` block from the Builder YAML A and remove the orphaned entity in HA |
+| A restarts often (`Laufzeit`/uptime drops to a few seconds) | Still open (11.10.). First finding "Hardware Watchdog" with Wi-Fi at −83 dBm at the container | Check `Neustart-Grund` (reset reason): "Power On"/"External" → power supply (PSU, thin/long USB cable); "Hardware/Software Watchdog" → rather Wi-Fi signal or firmware. Change only one thing at a time and count restarts before/after |
 | Fill level jumps or shows nonsense when the container is almost empty *(precautionary)* | 60° sound cone: echoes from the wall, the pump riser pipe or the corrugated hose | Location ≥ 30 cm from the pump and ≥ 20 cm from the wall; the median filter (15) catches isolated echoes |
 | No value / `nan` with a very full container | The sensor is blind below ~30 mm | That is why 100 % is at 50 mm. From 97 % a push is sent |
 | Sensor delivers different data / values only on request | The yellow wire (RX/mode) is connected to ground | leave yellow unconnected |
