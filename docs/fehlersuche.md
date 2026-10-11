@@ -8,7 +8,7 @@ Zurück zur [README](../README.md). Bekannte Fehlerbilder aus dem Projektverlauf
 
 | Fehlerbild | Ursache | Lösung |
 |---|---|---|
-| `Zielcontainer voll` an A ist dauernd **an** | Der Schwimmereingang GPIO14 ist offen (interner Pull-up). Der Schwimmer sitzt seit 07.10. an Knoten B | Den `binary_sensor`-Block aus der Builder-YAML A löschen und die verwaiste Entität in HA entfernen |
+| A startet oft neu (`Laufzeit` fällt auf wenige Sekunden) | Noch offen (11.10.). Erster Befund „Hardware Watchdog“ bei WLAN −83 dBm am Container | `Neustart-Grund` ansehen: „Power On“/„External“ → Stromversorgung (Netzteil, dünnes/langes USB-Kabel); „Hardware/Software Watchdog“ → eher WLAN-Signal oder Firmware. Immer nur eine Sache ändern und Neustarts vorher/nachher zählen |
 | Füllstand springt oder zeigt bei fast leerem Container Unsinn *(vorbeugend)* | 60°-Schallkegel: Echos von Wand, Steigrohr der Pumpe oder Wellschlauch | Stelle ≥ 30 cm von der Pumpe und ≥ 20 cm von der Wand; der Medianfilter (15) fängt Einzelechos ab |
 | Kein Wert / `nan` bei sehr vollem Container | Der Sensor ist unter ~30 mm blind | 100 % liegt deshalb bei 50 mm. Ab 97 % kommt ein Push |
 | Sensor liefert andere Daten / Werte nur auf Anforderung | Die gelbe Ader (RX/Modus) liegt auf Masse | gelb frei lassen |

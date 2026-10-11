@@ -49,17 +49,20 @@ If node B does not report, the pump does not start. After a power failure the pl
 | Ultrasonic sensor A02YYUW | ✅ delivered, bench-tested (room ceiling 1.37–1.47 m, hand detected immediately) | 06.10. |
 | Node A flashed, in the Builder and in HA | ✅ done | 06.10. ~20:15 |
 | Combined enclosure A (sensor + D1 mini) | ✅ printed (2nd revision, see section 5) | 07.10. |
-| M12 cable glands | 🟡 ordered (Amazon), delivery Fri 09.10.; will be glued in with hot glue | 09.10. 18:00 |
-| Mounting A on the IBC + calibration | ⬜ open | by 22.10. |
-| Remove float input from firmware A | ⬜ open (during calibration) | — |
+| M12 cable glands | ✅ glued in with hot glue | by 11.10. |
+| Mounting A on the IBC | ✅ mounted | 10.10. |
+| Calibration A (empty value still estimated) | ⬜ open | by 22.10. |
+| Remove float input from firmware A | ✅ removed and flashed via OTA | 10.10. |
+| Restart diagnosis A (`debug`: reset reason, free memory) | ✅ flashed; until then A restarted ~1×/h, cause open | 11.10. |
 | Pump plug (Nous Zigbee) | ✅ in HA, power-outage memory = off; **currently unplugged** | 07.10. |
 | Node B flashed (static IP), in the Builder and in HA | ✅ done, "keep awake"/deep sleep tested | 07.10. ~21:30–21:45 |
 | Node B internal wiring (D0–RST, A0 divider, float) | ✅ done, bench test of float passed | 08.10. 17:32 |
 | Float holder B | ✅ printed | 08.10. |
-| Enclosure B | ⬜ ready to print, not yet printed | — |
+| Enclosure B | ✅ printed, node B installed | 10.10. |
+| Node B on site | ✅ installed, reports every ~15 min; with static IP no more dropouts (with DHCP ~10 %) | 11.10. |
 | Lid gasket B (TPU) | ✅ designed, collision-checked; ⬜ not printed | 09.10. |
 | Lid screws B 3 × 12 | ⬜ missing, to buy | — |
-| Battery B | 🟡 e-cigarette battery in self-discharge test (reference 4.137 V) | evaluation 09.10. 14:30 |
+| Battery B | ✅ e-cigarette battery, self-discharge test passed (4.12 V in operation) | 11.10. |
 | Solar panel, Zener diode, EVE battery, panel cable | ⬜ not ordered, reichelt order planned | 02.11. |
 | HA pump package `ha/ibc-pumpe.yaml` | ⬜ draft, **not deployed** (no IBC automation exists in HA yet) | — |
 | Normal pump power, dry-run threshold | ⬜ open, only measurable at the first pump run | — |
@@ -135,7 +138,7 @@ Prices and part numbers only where documented in the notes. "—" = not noted.
 | A02YYUW | white, TX (sensor transmits) | D7 | GPIO13 | UART RX, 9600 baud, packet every ~100 ms: `0xFF, Hi, Lo, Summe` (sum) |
 | A02YYUW | yellow, RX / mode | **leave unconnected** | — | pulled to ground, the sensor switches to a different output mode |
 | USB power adapter | +5 V / GND | 5V / G | — | cable soldered on, through one M12 gland |
-| ~~Float~~ | ~~2 wires~~ | ~~D5 + G~~ | ~~GPIO14~~ | **dropped**, the float now sits at node B. Still in the firmware and will be removed during calibration |
+| ~~Float~~ | ~~2 wires~~ | ~~D5 + G~~ | ~~GPIO14~~ | **dropped**, the float now sits at node B. Removed from the firmware (10.10.) |
 
 The wire colours come from the workshop notes and are not separately documented against the delivered sensor. Please check before soldering.
 
@@ -272,7 +275,7 @@ measure and report the battery → sleep or stay awake. Emergency brake: `run_du
 | A | `sensor.ibc_wasser_fullstand` | fill level % |
 | A | `sensor.ibc_wasser_inhalt` | content in L |
 | A | `sensor.ibc_wasser_wlan_signal`, `sensor.ibc_wasser_laufzeit` | diagnostics (Wi-Fi signal, uptime) |
-| A | `binary_sensor.ibc_wasser_zielcontainer_voll` | **legacy**, disappears when the float is removed from firmware A |
+| A | `sensor.ibc_wasser_neustart_grund`, `sensor.ibc_wasser_freier_speicher` | diagnostics (`debug`): reason of the last restart, free heap |
 | B | `binary_sensor.ibc_b_zielcontainer_voll` | on = float open = B full or cable detached |
 | B | `sensor.ibc_b_akku` | battery voltage V, `force_update` = sign of life (`last_reported`) |
 | B | `sensor.ibc_b_akku_ladung` | roughly linear 3.3 V = 0 % … 4.15 V = 100 % (battery charge) |
@@ -356,9 +359,8 @@ The lock is released **only manually**: switch off `IBC-Pumpe gesperrt` (IBC pum
 | Fri 09.10. 14:30 | E-cig battery self-discharge test: measure (outside the shield). Reference 08.10. 14:25 = 4.137 V. ≥ 4.09 V good, 4.04–4.09 borderline, < 4.04 V discard. Then measure 3V/5V on the right-hand shield | Jens |
 | Fri 09.10. 18:00 | Glue the M12 glands into combined enclosure A, check the colour of the delivery, measure thread length and nut height | Jens |
 | after battery test | Shield 5V + battery to node B, calibrate A0 against multimeter (`adc_faktor`) | Jens |
-| — | Print enclosure B | Jens |
 | — | Wi-Fi test at location B (D1 on a power bank) → decides on external antenna | Jens |
-| by 22.10. | Mount A (cut-out 70 × 35, self-tapping screws 4.2 + sealing tape) and calibrate; remove the float from the Builder YAML A | Jens |
+| by 22.10. | Mount A (cut-out 70 × 35, self-tapping screws 4.2 + sealing tape) and calibrate | Jens |
 | by 22.10. | Run the pump for the first time → normal power; adapt and deploy the HA package | Jens |
 | **23.10.–01.11.** | **Jens away from home.** No deliveries, no manual work. The pump logic may only run during this time if it has been tested beforehand. Otherwise the plug stays unplugged | — |
 | Mon 02.11. 18:00 | Order from reichelt: Seeed Solar 1 W, 2× BZX 85C6V2, EVE 18650-33V, H05RN-F 2 × 0.75 ~3 m. Re-check prices and availability first (as of 07.10. ~€19–20) | Jens |

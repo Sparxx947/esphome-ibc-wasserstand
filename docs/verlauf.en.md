@@ -15,6 +15,8 @@ Back to the [README](../README.en.md). Summarised from the project notes.
 | 07.10. evening | Enclosure B, schematic B, firmware B finished. Node B **flashed** (.196 static), added to HA, helper `ibc_b_wach_halten` (keep awake) created, test keep awake / deep sleep ✔. The ESPHome Builder can be controlled via API. Amazon basket (multimeter UT139C, M12) ordered by Jens; remaining reichelt items postponed to **02.11.** (absence 23.10.–01.11.) |
 | 08.10. | E-cig battery charged, reference value 4.137 V. 100 k + 22 k available. Float holder **printed**. Internal wiring B finished, bench test float ✔ (17:32) |
 | 09.10. | **TPU lid gasket B** designed (`ibc_b_dichtung.stl`), collision checked by intersection, mesh cleaned. Lid screws 3 × 12 still missing |
+| 10.10. | A mounted, float input removed from firmware A (OTA). Wi-Fi at the container only −79…−81 dBm (indoors −60). Node B in its enclosure: a direct D0–RST bridge blocked USB flashing → now 470 Ω (deep-sleep wake-up works, USB flashing only without the bridge, otherwise OTA) |
+| 11.10. | B installed on site, reports every ~15 min. DHCP test reverted, static IP again: no more dropouts since (before ~10 %). A restarted ~1×/h → `debug` with reset reason flashed; first finding "Hardware Watchdog" with weak Wi-Fi (−83 dBm), cause still open |
 
 ## Rejected approaches
 

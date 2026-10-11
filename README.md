@@ -49,17 +49,20 @@ Meldet sich Knoten B nicht, startet die Pumpe nicht. Nach einem Stromausfall ble
 | Ultraschallsensor A02YYUW | ✅ geliefert, am Tisch getestet (Zimmerdecke 1,37–1,47 m, Hand sofort erkannt) | 06.10. |
 | Knoten A geflasht, im Builder und in HA | ✅ fertig | 06.10. ~20:15 |
 | Kombi-Gehäuse A (Sensor + D1 mini) | ✅ gedruckt (2. Fassung, siehe Abschnitt 5) | 07.10. |
-| Kabelverschraubungen M12 | 🟡 bestellt (Amazon), Lieferung Fr 09.10.; werden mit Heißkleber eingeklebt | 09.10. 18:00 |
-| Montage A auf dem IBC + Einmessen | ⬜ offen | bis 22.10. |
-| Schwimmer-Eingang aus Firmware A entfernen | ⬜ offen (beim Einmessen) | — |
+| Kabelverschraubungen M12 | ✅ mit Heißkleber eingeklebt | bis 11.10. |
+| Montage A auf dem IBC | ✅ montiert | 10.10. |
+| Einmessen A (Leer-Wert noch geschätzt) | ⬜ offen | bis 22.10. |
+| Schwimmer-Eingang aus Firmware A entfernen | ✅ entfernt und per OTA geflasht | 10.10. |
+| Neustart-Diagnose A (`debug`: Neustart-Grund, freier Speicher) | ✅ geflasht; A startete bis dahin ~1×/h neu, Ursache offen | 11.10. |
 | Pumpen-Steckdose (Nous Zigbee) | ✅ in HA, Power-outage-memory = off; **zurzeit ausgesteckt** | 07.10. |
 | Knoten B geflasht (feste IP), im Builder und in HA | ✅ fertig, „wach halten“/Tiefschlaf getestet | 07.10. ~21:30–21:45 |
 | Knoten B Innenverdrahtung (D0–RST, A0-Teiler, Schwimmer) | ✅ fertig, Tischtest Schwimmer bestanden | 08.10. 17:32 |
 | Schwimmerhalter B | ✅ gedruckt | 08.10. |
-| Gehäuse B | ⬜ druckfertig, noch nicht gedruckt | — |
+| Gehäuse B | ✅ gedruckt, Knoten B eingebaut | 10.10. |
+| Knoten B am Standort | ✅ verbaut, meldet im ~15-min-Takt; mit fester IP keine Aussetzer mehr (vorher mit DHCP ~10 %) | 11.10. |
 | Deckeldichtung B (TPU) | ✅ konstruiert, Kollision geprüft; ⬜ nicht gedruckt | 09.10. |
 | Deckelschrauben B 3 × 12 | ⬜ fehlen, kaufen | — |
-| Akku B | 🟡 E-Zigarettenakku im Selbstentladetest (Bezug 4,137 V) | Bewertung 09.10. 14:30 |
+| Akku B | ✅ E-Zigarettenakku, Selbstentladetest bestanden (im Betrieb 4,12 V) | 11.10. |
 | Solarpanel, Z-Diode, EVE-Akku, Panelkabel | ⬜ nicht bestellt, reichelt-Bestellung geplant | 02.11. |
 | HA-Pumpenpaket `ha/ibc-pumpe.yaml` | ⬜ Entwurf, **nicht eingespielt** (in HA existiert noch keine IBC-Automation) | — |
 | Pumpen-Normalleistung, Trockenlauf-Schwelle | ⬜ offen, erst beim ersten Pumpenlauf messbar | — |
@@ -135,7 +138,7 @@ Preise und Artikelnummern nur dort, wo sie in den Notizen belegt sind. „—“
 | A02YYUW | weiß, TX (Sensor sendet) | D7 | GPIO13 | UART RX, 9600 Bd, Paket alle ~100 ms: `0xFF, Hi, Lo, Summe` |
 | A02YYUW | gelb, RX / Modus | **frei lassen** | — | auf Masse schaltet der Sensor in einen anderen Ausgabemodus |
 | USB-Netzteil | +5 V / GND | 5V / G | — | Kabel angelötet, durch eine M12-Verschraubung |
-| ~~Schwimmer~~ | ~~2 Adern~~ | ~~D5 + G~~ | ~~GPIO14~~ | **entfällt**, der Schwimmer sitzt jetzt an Knoten B. Steht noch in der Firmware und wird beim Einmessen entfernt |
+| ~~Schwimmer~~ | ~~2 Adern~~ | ~~D5 + G~~ | ~~GPIO14~~ | **entfällt**, der Schwimmer sitzt jetzt an Knoten B. Aus der Firmware entfernt (10.10.) |
 
 Die Aderfarben stammen aus dem Werkstattbuch und sind gegen den gelieferten Sensor nicht gesondert dokumentiert. Vor dem Anlöten bitte nachsehen.
 
@@ -272,7 +275,7 @@ Akku messen und melden → schlafen oder wach bleiben. Notbremse: `run_duration:
 | A | `sensor.ibc_wasser_fullstand` | Füllstand % |
 | A | `sensor.ibc_wasser_inhalt` | Inhalt in L |
 | A | `sensor.ibc_wasser_wlan_signal`, `sensor.ibc_wasser_laufzeit` | Diagnose |
-| A | `binary_sensor.ibc_wasser_zielcontainer_voll` | **Altlast**, verschwindet mit dem Entfernen des Schwimmers aus der Firmware A |
+| A | `sensor.ibc_wasser_neustart_grund`, `sensor.ibc_wasser_freier_speicher` | Diagnose (`debug`): Grund des letzten Neustarts, freier Heap |
 | B | `binary_sensor.ibc_b_zielcontainer_voll` | an = Schwimmer offen = B voll oder Kabel ab |
 | B | `sensor.ibc_b_akku` | Akkuspannung V, `force_update` = Lebenszeichen (`last_reported`) |
 | B | `sensor.ibc_b_akku_ladung` | grob linear 3,3 V = 0 % … 4,15 V = 100 % |
@@ -352,11 +355,9 @@ Die Sperre wird **nur von Hand** gelöst: `IBC-Pumpe gesperrt` ausschalten.
 | Wann | Was | Wer |
 |---|---|---|
 | Fr 09.10. 14:30 | E-Zig-Akku Selbstentladetest: messen (außerhalb des Shields). Bezug 08.10. 14:25 = 4,137 V. ≥ 4,09 V gut, 4,04–4,09 grenzwertig, < 4,04 V aussortieren. Danach 3V/5V am rechten Shield messen | Jens |
-| Fr 09.10. 18:00 | M12-Verschraubungen ins Kombi-Gehäuse A einkleben, Farbe der Lieferung prüfen, Gewindelänge und Mutterhöhe messen | Jens |
 | nach Akkutest | Shield-5V + Akku an Knoten B, A0 gegen Multimeter abgleichen (`adc_faktor`) | Jens |
-| — | Gehäuse B drucken | Jens |
 | — | WLAN-Test am Standort B (D1 per Powerbank) → entscheidet über externe Antenne | Jens |
-| bis 22.10. | A montieren (Ausschnitt 70 × 35, Blechschrauben 4,2 + Dichtband) und einmessen; Schwimmer aus der Builder-YAML A entfernen | Jens |
+| bis 22.10. | A montieren (Ausschnitt 70 × 35, Blechschrauben 4,2 + Dichtband) und einmessen | Jens |
 | bis 22.10. | Pumpe erstmals laufen lassen → Normalleistung; HA-Paket anpassen und einspielen | Jens |
 | **23.10.–01.11.** | **Jens nicht zu Hause.** Keine Lieferungen, keine Handgriffe. Die Pumpenlogik darf in der Zeit nur laufen, wenn sie vorher getestet ist. Sonst bleibt die Steckdose ausgesteckt | — |
 | Mo 02.11. 18:00 | reichelt bestellen: Seeed Solar 1 W, 2× BZX 85C6V2, EVE 18650-33V, H05RN-F 2 × 0,75 ~3 m. Vorher Preise und Lieferbarkeit neu prüfen (Stand 07.10. ~19–20 €) | Jens |

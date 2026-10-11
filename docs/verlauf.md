@@ -15,6 +15,8 @@ Zurück zur [README](../README.md). Zusammengefasst aus den Projektnotizen.
 | 07.10. abends | Gehäuse B, Schaltplan B, Firmware B fertig. Knoten B **geflasht** (.196 fest), in HA aufgenommen, Helfer `ibc_b_wach_halten` angelegt, Test wach halten / Tiefschlaf ✔. ESPHome Builder lässt sich per API steuern. Amazon-Korb (Multimeter UT139C, M12) von Jens bestellt; reichelt-Rest auf **02.11.** verschoben (Abwesenheit 23.10.–01.11.) |
 | 08.10. | E-Zig-Akku geladen, Bezugswert 4,137 V. 100 k + 22 k vorhanden. Schwimmerhalter **gedruckt**. Innenverdrahtung B fertig, Tischtest Schwimmer ✔ (17:32) |
 | 09.10. | **TPU-Deckeldichtung B** konstruiert (`ibc_b_dichtung.stl`), Kollision per Schnittmenge geprüft, Netz bereinigt. Deckelschrauben 3 × 12 fehlen noch |
+| 10.10. | A montiert, Schwimmer-Eingang aus Firmware A entfernt (OTA). WLAN am Container nur −79…−81 dBm (drinnen −60). Knoten B im Gehäuse: Direkte Brücke D0–RST blockierte das Flashen per USB → jetzt 470 Ω (Tiefschlaf-Wecken geht, USB-Flashen nur ohne Brücke, sonst OTA) |
+| 11.10. | B am Standort verbaut, meldet im ~15-min-Takt. DHCP-Test zurückgenommen, wieder feste IP: danach keine Aussetzer mehr (vorher ~10 %). A startete ~1×/h neu → `debug` mit Neustart-Grund geflasht; erster Befund „Hardware Watchdog“ bei schwachem WLAN (−83 dBm), Ursache noch offen |
 
 ## Verworfene Wege
 
