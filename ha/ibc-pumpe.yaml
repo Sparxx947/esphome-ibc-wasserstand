@@ -1,7 +1,17 @@
 # IBC-Ueberlaufschutz: Pumpe A → B/C (2–3 m hoch) ueber Zigbee-Steckdose mit Leistungsmessung
-# ENTWURF 04.10.2026 — wird erst eingespielt, wenn der D1 mini laeuft (Entitaeten-IDs dann pruefen/ersetzen).
+# 12.10.2026 EINGESPIELT — als UI-Helfer + UI-Automationen (HA nutzt keine packages), NICHT aus dieser Datei.
+#   Diese Datei ist nur noch Referenz. Abweichungen der Live-Fassung:
+#   - Helfer-IDs: input_number.ibc_a_stand_bei_pumpenstart (statt ibc_a_startstand), NEU input_datetime.ibc_pumpe_startzeit,
+#     NEU input_number.ibc_pumpe_trockenlauf_schwelle (20 W vorlaeufig; nach erstem Lauf ~60 % der Normalleistung)
+#   - EIN setzt zuerst input_boolean.ibc_b_wach_halten (B entscheidet nur ~1 s nach dem Melden ueber Schlaf) und
+#     startet erst bei frischer B-Meldung (< 120 s); Trigger zusaetzlich sensor.ibc_b_wach_seit, Sperre/Ziel -> off
+#   - NEU „Pumpenlauf merken“: aus->an speichert Startzeit + Stand A, an->aus schaltet wach_halten aus
+#   - Sicherung: Laufzeit/kein Absinken aus input_datetime statt for: (robust gegen Neustart/Funkaussetzer),
+#     Pruefung jede Minute; Trockenlauf-Schwelle aus dem Helfer
+#   - Ziel voll: Push nur, wenn die Pumpe lief; schaltet wach_halten aus
+# Ursprung: ENTWURF 04.10.2026.
 # Platzhalter:
-#   switch.steckdose_ibc_wassercontainer_pumpe → Nous-Zigbee-Steckdose (Z2M, 0xa4c13819f1c0dd81), Power outage memory = off (07.10.)
+#   switch.steckdose_ibc_wassercontainer_pumpe → Nous-Zigbee-Steckdose (Z2M), Power outage memory = off (07.10.)
 #   sensor.steckdose_ibc_wassercontainer_pumpe_power      → deren Leistung (W)
 #   sensor.ibc_wasser_fullstand → Fuellstand A in % (ESPHome „Füllstand“)
 #   binary_sensor.ibc_b_zielcontainer_voll → Schwimmer in B (eigener Solar-Knoten ibc-b, Tiefschlaf 15 min)

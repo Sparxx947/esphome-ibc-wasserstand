@@ -2,13 +2,13 @@
 
 # Fehlersuche
 
-Zurück zur [README](../README.md). Bekannte Fehlerbilder aus dem Projektverlauf (04.–08.10.2026). Was nur vorbeugend beschrieben ist, steht als *(vorbeugend)* da.
+Zurück zur [README](../README.md). Bekannte Fehlerbilder aus dem Projektverlauf (04.–13.10.2026). Was nur vorbeugend beschrieben ist, steht als *(vorbeugend)* da.
 
 ## Knoten A (`ibc-wasser`)
 
 | Fehlerbild | Ursache | Lösung |
 |---|---|---|
-| A startet oft neu (`Laufzeit` fällt auf wenige Sekunden) | Noch offen (11.10.). Erster Befund „Hardware Watchdog“ bei WLAN −83 dBm am Container | `Neustart-Grund` ansehen: „Power On“/„External“ → Stromversorgung (Netzteil, dünnes/langes USB-Kabel); „Hardware/Software Watchdog“ → eher WLAN-Signal oder Firmware. Immer nur eine Sache ändern und Neustarts vorher/nachher zählen |
+| A startet oft neu (`Laufzeit` fällt auf wenige Sekunden) | **Noch offen.** 11./12.10.: 14 Neustarts in ~20 h, alle „Hardware Watchdog“ (CPU hängt > ~8 s). Das WLAN-Signal erklärt die Häufung nicht (abends gehäuft, morgens bei besserem Signal weiter). Unterspannung bleibt Verdacht *(ungeprüft)*; der ESP8266 meldet keinen eigenen Brownout-Grund. Gegenprobe: Netzteil am 13.10. 17:47 getauscht, Ergebnis ab 14.10. 18:00 | `Neustart-Grund` ansehen: „Power On“/„External“ → Stromversorgung (Netzteil, dünnes/langes USB-Kabel); „Hardware/Software Watchdog“ → eher WLAN-Signal oder Firmware. Immer nur eine Sache ändern und Neustarts vorher/nachher zählen |
 | Füllstand springt oder zeigt bei fast leerem Container Unsinn *(vorbeugend)* | 60°-Schallkegel: Echos von Wand, Steigrohr der Pumpe oder Wellschlauch | Stelle ≥ 30 cm von der Pumpe und ≥ 20 cm von der Wand; der Medianfilter (15) fängt Einzelechos ab |
 | Kein Wert / `nan` bei sehr vollem Container | Der Sensor ist unter ~30 mm blind | 100 % liegt deshalb bei 50 mm. Ab 97 % kommt ein Push |
 | Sensor liefert andere Daten / Werte nur auf Anforderung | Die gelbe Ader (RX/Modus) liegt auf Masse | gelb frei lassen |
@@ -25,10 +25,11 @@ Zurück zur [README](../README.md). Bekannte Fehlerbilder aus dem Projektverlauf
 | Flashen per USB scheitert | Die D0–RST-Brücke stört den Auto-Reset | Brücke kurz abziehen |
 | Knoten meldet sich nur alle 2 h | Akku < 3,3 V, oder A0 unbeschaltet (07.10.: 0,01 V) bzw. ohne Akku (08.10.: 0,41 V) | Akku/Teiler prüfen; nach Reset ist er 10 min wach |
 | OTA-Update kommt nicht an | Der Knoten schläft | In HA `IBC B wach halten` an, bis zu 15 min (bzw. 2 h) warten, flashen, danach wieder **aus** |
-| Akku leert sich schnell | „wach halten“ vergessen; Ruhestrom des Shields zu hoch (schlechte Charge mit SW6115/IP3005A: ~100 mA statt ~0,3 mA); Panel verschattet | Helfer aus; Akkuverlauf in HA ansehen; Shield tauschen; Panel reinigen und ausrichten |
+| Akku leert sich schnell | „wach halten“ hängt an (setzt seit 12.10. auch die Pumpenautomation; aus geht es beim Ausschalten der Pumpe und bei „Ziel voll“); Ruhestrom des Shields zu hoch (schlechte Charge mit SW6115/IP3005A: ~100 mA statt ~0,3 mA); Panel verschattet | Helfer aus; Akkuverlauf in HA ansehen; Shield tauschen; Panel reinigen und ausrichten |
 | D1 mini startet unzuverlässig *(vorbeugend)* | vom 3V-Ausgang des Shields versorgt (XC6206 ohne Kondensator) | immer Shield **5V** → D1 **5V** |
 | Shield-Eingang zerstört *(vorbeugend)* | Leerlaufspannung des Panels bis 8,2 V > 6,5 V Eingangsgrenze | Z-Diode 6,2 V parallel, Ring an + |
 | Rauch/Wärme beim Akku-Einlegen *(vorbeugend)* | Halterpolung vertauscht (bekannter Layoutfehler dieser Shield-Serie) | vorher messen: + piept an Spule 3R3. Bei den beiden vorhandenen geprüft ✔ |
+| Auswertung zeigt Lücken im 15-min-Takt (~28 min), obwohl B gemeldet hat | HA speichert gleiche Folgewerte nicht als Änderung | `sensor.ibc_b_wach_seit` und `sensor.ibc_b_akku` **zusammen** auswerten |
 | Komisches Verhalten beim Testen | D1-USB und Shield gleichzeitig angeschlossen | **niemals** beides gleichzeitig |
 | `Zielcontainer voll` = an, obwohl B leer ist | Schwimmerkabel ab/offen oder Schwimmer falsch herum eingebaut | Kabel prüfen; Pfeil am Schwimmer, um 180° drehen (Firmware **nicht** invertieren) |
 | Hotspot-Passwort oder API-Schlüssel stimmt nach dem Flashen nicht | Ein Prüfbuild mit Dummy-Secrets wurde geflasht (`esphome upload` kompiliert nicht neu) | immer `esphome run` mit echten Secrets; danach API-Gegenprobe |
@@ -38,13 +39,13 @@ Zurück zur [README](../README.md). Bekannte Fehlerbilder aus dem Projektverlauf
 
 | Fehlerbild | Ursache | Lösung |
 |---|---|---|
-| A > 90 %, aber Pumpe startet nicht sofort | **Absicht:** Start erst, wenn B sich frisch gemeldet hat (< 120 s), also beim nächsten Aufwachen (≤ 15 min) | abwarten; sonst Sperre, „Ziel voll“ und Lebenszeichen von B prüfen |
+| A > 90 %, aber Pumpe startet nicht sofort | **Absicht:** Die EIN-Automation setzt zuerst „wach halten“; die Pumpe startet erst, wenn B sich frisch gemeldet hat (< 120 s), also beim nächsten Aufwachen (≤ 15 min) | abwarten; sonst Sperre, „Ziel voll“ und Lebenszeichen von B prüfen |
 | Pumpe startet gar nicht mehr | `IBC-Pumpe gesperrt` ist an (nach Trockenlauf oder 30 min) | Ursache vor Ort ansehen, dann die Sperre **von Hand** ausschalten |
-| Push „Pumpe gesperrt – Leistung zu niedrig“, obwohl alles gefördert hat | Die Schwelle `below: 20` ist noch ein Platzhalter | auf ~60 % der Normalleistung setzen |
+| Push „Pumpe gesperrt – Leistung zu niedrig“, obwohl alles gefördert hat | Die Schwelle `input_number.ibc_pumpe_trockenlauf_schwelle` steht noch auf dem vorläufigen Wert 20 W | auf ~60 % der Normalleistung setzen (Probelauf 14.10.) |
 | Push „A sinkt nicht“ | Leitung zu, Pumpe zieht Luft, Kugelhahn zu; oder die Pumpe fördert weniger als ~2 l/min | Leitung und Hahn prüfen; ggf. Regel anpassen |
 | Push „Knoten B meldet sich nicht“ | Akku leer, WLAN, Knoten hängt im Tiefschlaf ohne D0–RST | Akku/Panel, WLAN-Signal, Reset |
 | Pumpe läuft nach Stromausfall an *(vorbeugend)* | Power-outage-memory der Steckdose nicht `off` | auf `off` setzen (seit 07.10. so eingestellt) |
-| Steckdose `unavailable` | Sie ist ausgesteckt (seit 07.10. 18:33), oder es gibt keinen Zigbee-Empfang | einstecken; Empfang am Standort prüfen |
+| Steckdose `unavailable` | Sie ist ausgesteckt (war es vom 07.10. 18:33 bis zur Inbetriebnahme), oder es gibt keinen Zigbee-Empfang | einstecken; Empfang am Standort prüfen |
 
 ## Bestellung / Teile
 
