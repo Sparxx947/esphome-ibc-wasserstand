@@ -89,7 +89,7 @@ An external antenna (or a D1 mini Pro) is only bought if the result is poor.
 
 1. Nous Zigbee plug under the roof or in a protective box, because it is an indoor device. Power-outage memory must stay **off**.
 2. Plug in the pump, measure the normal power ([einmessen.en.md](einmessen.en.md), section 5).
-3. Adapt `ha/ibc-pumpe.yaml` (power threshold) and deploy it (README section 8).
+3. Set the power threshold in the helper `input_number.ibc_pumpe_trockenlauf_schwelle`. The pump logic has been deployed as UI automations since 12.10. (README section 8); `ha/ibc-pumpe.yaml` is only a reference now.
 
 ---
 
@@ -100,11 +100,13 @@ An external antenna (or a D1 mini Pro) is only bought if the result is poor.
 | 1 | Fill level A plausible (cross-check with folding rule) | deviation ≤ ~1 % |
 | 2 | Node B reports regularly | `sensor.ibc_b_akku` new every ~15 min (`last_reported`) |
 | 3 | Flip float B up (by hand) | "Zielcontainer voll" (target container full) on → with the pump running, immediately off + push. B is awake at this point because the pump is running. If B is asleep, this is only detected at the next wake-up |
-| 4 | Disconnect the float cable | "voll" (full) = on, pump locked |
+| 4 | Disconnect the float cable | "voll" (full) = on, pump off or does not start (without lock) |
 | 5 | Start the pump manually, power down node B | after > 180 s without a report: pump off + push |
-| 6 | Run-time limit (shorten `for` in HA for testing) | after expiry off + lock + push; lock only released manually |
+| 6 | Run-time limit (for testing, set `input_datetime.ibc_pumpe_startzeit` back by > 30 min in HA) | after expiry off + lock + push; lock only released manually |
 | 7 | Node A without power | after 15 min: pump off + push |
 | 8 | Regular run A ≥ 90 % → ≤ 70 % | start at the next B wake-up, stop at 70 %, B sleeps again afterwards |
 | 9 | Battery curve B over a few days | no steady decline in sunshine. Otherwise the quiescent current is too high, e.g. due to a bad shield batch |
 
-Carry out tests 3–7 **before** the absence from 23.10., or leave the plug unplugged until November.
+Carry out tests 3–7 **before** the absence from 23.10., or disable the `ibc_*` automations until November.
+
+**As of 13.10.:** test 2 ✔ (B reports every ~14 min, 0 dropouts with static IP). Test 3 only without the pump running ✔ (float on site, 12.10., two cycles). All tests with the pump running are still pending; the first step is the test run on 14.10. 17:30.

@@ -89,7 +89,7 @@ Eine externe Antenne (bzw. ein D1 mini Pro) wird erst gekauft, wenn das Ergebnis
 
 1. Nous-Zigbee-Steckdose unter Dach bzw. in einer Schutzbox, denn sie ist ein Innengerät. Power-outage-memory muss **off** bleiben.
 2. Pumpe einstecken, Normalleistung messen ([einmessen.md](einmessen.md), Abschnitt 5).
-3. `ha/ibc-pumpe.yaml` anpassen (Leistungsschwelle) und einspielen (README Abschnitt 8).
+3. Leistungsschwelle im Helfer `input_number.ibc_pumpe_trockenlauf_schwelle` setzen. Die Pumpenlogik ist seit 12.10. als UI-Automationen eingespielt (README Abschnitt 8); `ha/ibc-pumpe.yaml` ist nur noch Referenz.
 
 ---
 
@@ -100,11 +100,13 @@ Eine externe Antenne (bzw. ein D1 mini Pro) wird erst gekauft, wenn das Ergebnis
 | 1 | Füllstand A plausibel (Zollstock-Gegenprobe) | Abweichung ≤ ~1 % |
 | 2 | Knoten B meldet regelmäßig | `sensor.ibc_b_akku` alle ~15 min neu (`last_reported`) |
 | 3 | Schwimmer B hochklappen (von Hand) | „Zielcontainer voll“ an → bei laufender Pumpe sofort aus + Push. B ist dabei wach, weil die Pumpe läuft. Schläft B, wird das erst beim nächsten Aufwachen erkannt |
-| 4 | Schwimmerkabel abziehen | „voll“ = an, Pumpe gesperrt |
+| 4 | Schwimmerkabel abziehen | „voll“ = an, Pumpe aus bzw. startet nicht (ohne Sperre) |
 | 5 | Pumpe von Hand starten, Knoten B stromlos machen | nach > 180 s ohne Meldung: Pumpe aus + Push |
-| 6 | Laufzeitgrenze (in HA testweise `for` verkürzen) | nach Ablauf aus + Sperre + Push; Sperre nur von Hand lösen |
+| 6 | Laufzeitgrenze (in HA `input_datetime.ibc_pumpe_startzeit` testweise > 30 min zurückstellen) | nach Ablauf aus + Sperre + Push; Sperre nur von Hand lösen |
 | 7 | Knoten A stromlos | nach 15 min: Pumpe aus + Push |
 | 8 | Regulärer Lauf A ≥ 90 % → ≤ 70 % | Start beim nächsten B-Aufwachen, Stopp bei 70 %, B schläft danach wieder |
 | 9 | Akkuverlauf B über einige Tage | kein stetiger Abfall bei Sonne. Sonst ist der Ruhestrom zu hoch, etwa durch eine schlechte Shield-Charge |
 
-Tests 3–7 **vor** der Abwesenheit ab 23.10. durchführen, oder die Steckdose bis November ausgesteckt lassen.
+Tests 3–7 **vor** der Abwesenheit ab 23.10. durchführen, oder die Automationen `ibc_*` bis November deaktivieren.
+
+**Stand 13.10.:** Test 2 ✔ (B meldet im ~14-min-Takt, 0 Aussetzer mit fester IP). Test 3 nur ohne laufende Pumpe ✔ (Schwimmer am Standort, 12.10., zwei Durchgänge). Alle Tests mit laufender Pumpe stehen aus; erster Schritt ist der Probelauf am 14.10. 17:30.

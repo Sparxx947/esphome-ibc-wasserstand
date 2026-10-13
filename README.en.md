@@ -5,13 +5,14 @@
 Level measurement for a 1000 l IBC (intermediate bulk container) used as a rainwater tank, with pump control so that it does not overflow.
 Two ESPHome nodes on Wemos D1 mini boards; the pump logic runs in Home Assistant.
 
-> **As of: 08.10.2026.** Sources: project notes (04.–08.10.2026), firmware from the ESPHome Builder, SCAD files, HA package draft.
+> **As of: 13.10.2026.** Sources: project notes (04.–13.10.2026), firmware from the ESPHome Builder, SCAD files, helpers and automations read from Home Assistant (13.10.2026).
 > Anything not measured or confirmed is marked in the text as *(unverified)* or *(assumption)*.
 
 > **Rebuilding this project:** The files reflect one specific installation. Before using them yourself:
 > - Create your own `secrets.yaml` from [`firmware/secrets.example.yaml`](firmware/secrets.example.yaml) (Wi-Fi, API keys, fallback AP passwords).
 > - In [`firmware/ibc-b.yaml`](firmware/ibc-b.yaml) set your own static IP under `manual_ip` (IP, gateway, subnet, DNS) or remove the `manual_ip` block to use DHCP.
 > - In [`ha/ibc-pumpe.yaml`](ha/ibc-pumpe.yaml) adjust the entity IDs to your installation (pump plug, power sensor, ESPHome entities) and replace `notify.mobile_app_dein_handy` ("your phone") with your own notify service.
+>   The file is the original package draft. The running version differs from it (UI automations, two additional helpers), see section 8.
 > - Calibrate `abstand_leer_mm` / `abstand_voll_mm` (node A) and `adc_faktor` (node B) yourself, see [`docs/einmessen.en.md`](docs/einmessen.en.md).
 
 ---
@@ -42,7 +43,7 @@ If node B does not report, the pump does not start. After a power failure the pl
 
 ---
 
-## 2. Status (as of 09.10.2026)
+## 2. Status (as of 13.10.2026)
 
 | Area | Status | Date / note |
 |---|---|---|
@@ -54,18 +55,22 @@ If node B does not report, the pump does not start. After a power failure the pl
 | Calibration A (empty value still estimated) | ⬜ open | by 22.10. |
 | Remove float input from firmware A | ✅ removed and flashed via OTA | 10.10. |
 | Restart diagnosis A (`debug`: reset reason, free memory) | ✅ flashed; until then A restarted ~1×/h, cause open | 11.10. |
-| Pump plug (Nous Zigbee) | ✅ in HA, power-outage memory = off; **currently unplugged** | 07.10. |
+| Restarts of A evaluated | ✅ 14 real restarts in ~20 h (11.10. 16:57 – 12.10. 13:15), all "Hardware Watchdog"; the Wi-Fi signal does not explain the clustering | 12.10. |
+| Power-supply counter-test A | 🔄 power supply swapped 13.10. 17:47, A back online from 17:48:20 (reason "External System" = power-on); **result pending**, evaluation 14.10. 18:00 | 13.10. |
+| Pump plug (Nous Zigbee) | ✅ in HA, power-outage memory = off; plugged in and reachable (13.10.), the pump has never run through it yet | 07.10. / 13.10. |
 | Node B flashed (static IP), in the Builder and in HA | ✅ done, "keep awake"/deep sleep tested | 07.10. ~21:30–21:45 |
 | Node B internal wiring (D0–RST, A0 divider, float) | ✅ done, bench test of float passed | 08.10. 17:32 |
 | Float holder B | ✅ printed | 08.10. |
 | Enclosure B | ✅ printed, node B installed | 10.10. |
 | Node B on site | ✅ installed, reports every ~15 min; with static IP no more dropouts (with DHCP ~10 %) | 11.10. |
+| Dropouts B with static IP | ✅ 0 of ~121 wake-ups lost (11.10. 13:12 – 12.10. 18:06, interval 14.3 min) | 12.10. |
+| Float test B on site | ✅ passed: two cycles, "target container full" went on and off again immediately each time, no bouncing | 12.10. 18:21–18:23 |
 | Lid gasket B (TPU) | ✅ designed, collision-checked; ⬜ not printed | 09.10. |
 | Lid screws B 3 × 12 | ⬜ missing, to buy | — |
 | Battery B | ✅ e-cigarette battery, self-discharge test passed (4.12 V in operation) | 11.10. |
 | Solar panel, Zener diode, EVE battery, panel cable | ⬜ not ordered, reichelt order planned | 02.11. |
-| HA pump package `ha/ibc-pumpe.yaml` | ⬜ draft, **not deployed** (no IBC automation exists in HA yet) | — |
-| Normal pump power, dry-run threshold | ⬜ open, only measurable at the first pump run | — |
+| Pump logic in HA | ✅ **active** since 12.10. ~18:45 as UI helpers + 10 UI automations (section 8); ⬜ **not yet tested** in a real pump run | 12.10. |
+| Normal pump power, dry-run threshold | ⬜ threshold **provisionally 20 W** (helper); normal power only measurable in the test run | test run Wed 14.10. 17:30 |
 
 ---
 
@@ -104,7 +109,7 @@ Prices and part numbers only where documented in the notes. "—" = not noted.
 | Wire jumper | 1 | D0 (GPIO16) → RST, for deep sleep | — | installed 08.10. |
 | Float switch | 1 | side-mount float switch with hinged float (reed, 2 wires, ~3 mm cable), thread Ø 19 mm × 19.5 mm, sealing ring + nut; arrow on the body = mounting orientation | stock | available |
 | Float holder | 1 | `ibc_schwimmer_halter.stl` | self-printed, PETG | printed 08.10. |
-| Enclosure + lid | 1 + 1 | `ibc_b_gehaeuse.stl` + `ibc_b_deckel.stl` (outside 130 × 74 × 32 mm + tabs) | self-printed, PETG | ready to print, not printed |
+| Enclosure + lid | 1 + 1 | `ibc_b_gehaeuse.stl` + `ibc_b_deckel.stl` (outside 130 × 74 × 32 mm + tabs) | self-printed, PETG | printed, node B installed (10.10.) |
 | Cable gland | 2 | M12 from the Seki pack (see above): float + panel | see above | ordered |
 | Screws, lid | 4 | 3 × 12, self-tapping **or** chipboard screw (bites into the PETG bosses with 2.5 mm hole), stainless A2 or zinc-plated | — | missing, to buy |
 | Lid gasket | 1 | `ibc_b_dichtung.stl`, TPU 95A (~2.8 g). Alternative: self-adhesive EPDM foam tape ~3 mm wide, 2–3 mm thick | self-printed | designed 09.10., not printed |
@@ -117,7 +122,7 @@ Prices and part numbers only where documented in the notes. "—" = not noted.
 | Part | Qty | Designation / type | Source, price | Status |
 |---|---|---|---|---|
 | Pump | 1 | existing submersible pump in A, riser pipe → stainless-steel corrugated hose → ball valve → garden hose to B/C. Type/power **unknown** | stock | available |
-| Zigbee plug | 1 | Nous smart plug with power metering (Zigbee2MQTT). **Indoor device** → under the roof or in a protective box | stock | available, currently unplugged |
+| Zigbee plug | 1 | Nous smart plug with power metering (Zigbee2MQTT). **Indoor device** → under the roof or in a protective box | stock | available, plugged in (13.10.) |
 | Connection B ↔ C | 1 | hose at the bottom between B and C | stock | available |
 | Multimeter | 1 | UNI-T UT139C (µA range, for quiescent current and ADC calibration) | Amazon B00KKLW35O, €49.50 | ordered, delivery 09.10. |
 | Filament | — | PETG (ASA in direct sun) | stock | available |
@@ -179,8 +184,8 @@ Sources: [`gehaeuse/ibc-gehaeuse.scad`](gehaeuse/ibc-gehaeuse.scad) (A and float
 | `ibc_kombi_gehaeuse.stl` | **A:** sensor and D1 mini in one enclosure, 111 × 99 × 28 mm incl. flange | printed 07.10. (2nd revision) | two chambers, partition wall with cable slot; window 60 × 25 facing down with 45° flare; 4 holes Ø 4.4 in the flange; 2× M12 in the outer wall of the D1 chamber; 2 mm condensation drain hole |
 | `ibc_kombi_deckel.stl` | lid for A | printed | lip against driving rain, 2 pressure ribs on the back of the sensor (0.4 mm preload). Print: lid plate down |
 | `ibc_schwimmer_halter.stl` | **B:** hangs on the filler neck, carries the float switch | printed 08.10. | web 32 wide/5 thick, hook over neck wall 11.1 + 0.8 clearance, hole Ø 19.5 at 120 mm depth, plate 6 mm there; cable slots for cable ties. Print lying flat |
-| `ibc_b_gehaeuse.stl` | **B:** shield + D1 mini | ready to print, **not printed** | outside 130 × 74 × 32 + tabs, wall 3 mm, 2× M12 in the **lower** end wall, drain Ø 2.5, rails for shield (99.28 × 29.46, USB 6.74, height 25 – measured) and D1, terminal strip for the resistors |
-| `ibc_b_deckel.stl` | lid for B | ready to print | lip, 4× self-tapping screw 3 × 12. Print: lid plate down |
+| `ibc_b_gehaeuse.stl` | **B:** shield + D1 mini | printed (10.10.) | outside 130 × 74 × 32 + tabs, wall 3 mm, 2× M12 in the **lower** end wall, drain Ø 2.5, rails for shield (99.28 × 29.46, USB 6.74, height 25 – measured) and D1, terminal strip for the resistors |
+| `ibc_b_deckel.stl` | lid for B | printed | lip, 4× self-tapping screw 3 × 12. Print: lid plate down |
 | `ibc_b_dichtung.stl` | lid gasket for B (TPU) | designed 09.10., not printed | frame 1.6 mm on the 3 mm wall top, bead 0.8 × 0.6 on the wall centre, 4 corner ears Ø 7.4 with Ø 3.4 hole over the bosses. Print: TPU 95A, flat (bead up), 100 % infill, ~20 mm/s |
 | `ibc_sensor_halter.stl`, `ibc_sensor_abdeckung.stl` | separate holder for the sensor (flange 104 × 60) | **replaced** by the combined enclosure | do not print any more |
 | `vorschau_ibc.png` | preview image | **outdated** | still shows the round flange and the old D1 box |
@@ -236,8 +241,8 @@ then neutral-cure and only for joints that stay closed (do not glue the lid shut
 | Fallback AP | `IBC-Fallback` | `IBC-B-Fallback` (2 min timeout) |
 | Secrets | `wifi_ssid`, `wifi_password`, `ibc_api_key`, `ibc_ap_password` | `wifi_ssid`, `wifi_password`, `ibc_b_api_key`, `ibc_b_ap_password` |
 
-The files in `firmware/` are the state from the **ESPHome Builder**, and the Builder is the authoritative source.
-A local working copy of A already has `abstand_voll_mm: "50"`. The Builder still has `80`; this will be updated during calibration.
+The files in `firmware/` are the state from the **ESPHome Builder**, and the Builder is the authoritative source (compared 13.10.2026).
+`abstand_voll_mm` has been `50` in the Builder since 09.10.; with the OTA updates of 10 and 11.10. the value is also on the device.
 
 ### Important substitutions
 
@@ -246,7 +251,7 @@ A local working copy of A already has `abstand_voll_mm: "50"`. The Builder still
 | Name | Value | Meaning |
 |---|---|---|
 | `abstand_leer_mm` | `1050` (placeholder) | distance sensor → bottom = 0 %. **Calibrate** |
-| `abstand_voll_mm` | `80` (Builder), target `50` | distance sensor → highest level = 100 %. 100 % = 50 mm below the IBC top surface, because A has no overflow |
+| `abstand_voll_mm` | `50` | distance sensor → highest level = 100 %. 100 % = 50 mm below the IBC top surface, because A has no overflow |
 | `volumen_l` | `1000` | nominal volume, linear conversion |
 
 Filter: `filter_out: nan` → median (window 15, every 10 values, first after 5) → `throttle: 30s`. This removes isolated false echoes from the wall or drops.
@@ -267,7 +272,7 @@ Filter: `filter_out: nan` → median (window 15, every 10 values, first after 5)
 Sequence B: wake up → Wi-Fi with static IP (`fast_connect`) → after the API connection wait 3 s for the states of pump and "keep awake" →
 measure and report the battery → sleep or stay awake. Emergency brake: `run_duration: 30s` if HA is unreachable. `reboot_timeout: 0s`.
 
-### Entities in Home Assistant (checked 08.10.2026)
+### Entities in Home Assistant (checked 13.10.2026)
 
 | Node | Entity | Meaning |
 |---|---|---|
@@ -275,12 +280,13 @@ measure and report the battery → sleep or stay awake. Emergency brake: `run_du
 | A | `sensor.ibc_wasser_fullstand` | fill level % |
 | A | `sensor.ibc_wasser_inhalt` | content in L |
 | A | `sensor.ibc_wasser_wlan_signal`, `sensor.ibc_wasser_laufzeit` | diagnostics (Wi-Fi signal, uptime) |
-| A | `sensor.ibc_wasser_neustart_grund`, `sensor.ibc_wasser_freier_speicher` | diagnostics (`debug`): reason of the last restart, free heap |
+| A | `sensor.garten_ibc_wasser_neustart_grund`, `sensor.garten_ibc_wasser_freier_speicher` | diagnostics (`debug`): reason of the last restart, free heap. Prefix `garten_` ("garden") because the entities were only created on 11.10. |
 | B | `binary_sensor.ibc_b_zielcontainer_voll` | on = float open = B full or cable detached |
 | B | `sensor.ibc_b_akku` | battery voltage V, `force_update` = sign of life (`last_reported`) |
 | B | `sensor.ibc_b_akku_ladung` | roughly linear 3.3 V = 0 % … 4.15 V = 100 % (battery charge) |
 | B | `sensor.ibc_b_wlan_signal`, `sensor.ibc_b_wach_seit` | diagnostics (Wi-Fi signal, awake since) |
-| HA | `input_boolean.ibc_b_wach_halten` | UI helper (created 07.10.) |
+| HA | `input_boolean.ibc_b_wach_halten` | UI helper (created 07.10.), since 12.10. also set by the pump automation |
+| HA | `input_boolean.ibc_pumpe_gesperrt`, `input_datetime.ibc_pumpe_startzeit`, `input_number.ibc_a_stand_bei_pumpenstart`, `input_number.ibc_pumpe_trockenlauf_schwelle` | helpers of the pump logic (12.10.), see section 8 |
 | Zigbee | `switch.steckdose_ibc_wassercontainer_pumpe`, `sensor.steckdose_ibc_wassercontainer_pumpe_power` | pump and power |
 
 ### Secrets
@@ -310,7 +316,7 @@ The detailed step-by-step guides are in `docs/`:
 | [`docs/einbau.en.md`](docs/einbau.en.md) | Assembly, bench commissioning, mounting A and B on site, pump, test |
 | [`docs/einmessen.en.md`](docs/einmessen.en.md) | **Calibrating A** (empty/full, formulas, Builder), ADC calibration B, battery test, normal pump power and dry-run threshold, float switching direction |
 | [`docs/fehlersuche.en.md`](docs/fehlersuche.en.md) | known failure patterns with cause and solution |
-| [`docs/verlauf.en.md`](docs/verlauf.en.md) | project history 04.–08.10.2026 and decisions |
+| [`docs/verlauf.en.md`](docs/verlauf.en.md) | project history 04.–13.10.2026 and decisions |
 
 Short version of calibrating A (details in `docs/einmessen.en.md`):
 
@@ -327,28 +333,47 @@ Inhalt L        = Füllstand % / 100 × 1000
 
 ## 8. Home Assistant integration
 
-File: [`ha/ibc-pumpe.yaml`](ha/ibc-pumpe.yaml), **draft, not yet deployed**. It is an HA package with `input_boolean.ibc_pumpe_gesperrt` (pump locked),
-`input_number.ibc_a_startstand` (start level of A) and 9 automations. Push notifications go only to Jens' phone (`notify.mobile_app_dein_handy`).
+**Active since 12.10.2026 ~18:45.** The logic runs as **UI helpers and 10 UI automations** (IDs `ibc_*`), because this HA installation does not use
+`packages:`. [`ha/ibc-pumpe.yaml`](ha/ibc-pumpe.yaml) is the original package draft and now serves only as a **reference**; its header lists the
+differences of the live version. Push notifications go only to Jens' phone (`notify.mobile_app_dein_handy`).
+**The logic has not yet been tested in a real pump run** (A was at ~45 % on 12/13.10., start only above 90 %). Test run: Wed 14.10. 17:30.
 
-| Automation | Trigger | Effect |
+**Helpers**
+
+| Helper | Purpose |
+|---|---|
+| `input_boolean.ibc_pumpe_gesperrt` | lock after dry run, 30 min run time or "A does not drop". Release only manually |
+| `input_boolean.ibc_b_wach_halten` | keeps node B awake (exists since 07.10.); now also set by the pump automation |
+| `input_datetime.ibc_pumpe_startzeit` | start time of the current pump run (new compared to the draft) |
+| `input_number.ibc_a_stand_bei_pumpenstart` | level of A at pump start (`ibc_a_startstand` in the draft) |
+| `input_number.ibc_pumpe_trockenlauf_schwelle` | power threshold for dry run, **provisionally 20 W** (new compared to the draft) |
+
+**Automations (live, read 13.10.2026)**
+
+| Automation (ID) | Trigger | Effect |
 |---|---|---|
-| `ibc_pumpe_ein` | A > 90 % **or** B reports (new battery value) | pump on if A > 90 %, B report < 120 s old, target not full, no lock and pump off. Remembers the start level |
+| `ibc_pumpe_ein` | A > 90 %, B reports (`sensor.ibc_b_wach_seit` changes), lock → off, target full → off | If A > 90 %, target not full, no lock, pump off: first switch on `IBC B wach halten` (keep B awake); pump on only with a fresh B report (`sensor.ibc_b_akku` < 120 s old), otherwise at the next report |
+| `ibc_pumpe_lauf` | pump off → on / on → off (also manual) | on: remember start time and level of A. off: `IBC B wach halten` off, B may sleep |
 | `ibc_pumpe_aus_normal` | A < 70 % | pump off |
-| `ibc_pumpe_aus_ziel_voll` | target full → on | pump off + push |
-| `ibc_pumpe_sicherung` | 30 min run time / power < 20 W for 20 s / dropped less than 2 % after 10 min | off + **lock** + push with reason |
-| `ibc_sensor_ausfall` | fill level A `unavailable` for 15 min | pump off + push |
-| `ibc_pumpe_aus_b_stumm` | pump on and B > 180 s without a report, or float unavailable | pump off + push |
+| `ibc_pumpe_aus_ziel_voll` | target full → on | if the pump was running: off + push. Always: `IBC B wach halten` off |
+| `ibc_pumpe_sicherung` | every minute while the pump runs; power below the threshold helper for 20 s | run time ≥ 30 min, dropped less than 2 % after 10 min, or power too low → off + **lock** + push with reason. Run time from `input_datetime`, not via `for:` |
+| `ibc_sensor_ausfall` | fill level A `unavailable` for 15 min | pump off + push. Short watchdog restarts of A (seconds) do not trigger this |
+| `ibc_pumpe_aus_b_stumm` | pump on and B > 180 s without a report, or float `unavailable`/`unknown` | pump off + push |
 | `ibc_b_lebenszeichen` | B silent > 40 min | push (pump will not start in the meantime) |
 | `ibc_b_akku_schwach` | battery B < 3.4 V | push |
 | `ibc_a_uebervoll` | A > 97 % for 2 min | push (A has no overflow) |
 
-The lock is released **only manually**: switch off `IBC-Pumpe gesperrt` (IBC pump locked).
+**Why it differs from the draft:** node B decides only ~1 s after reporting whether it goes back to sleep. The draft would have started the pump
+on the report but already let B fall asleep again. Therefore the ON automation first sets "keep awake", and the pump starts at the next fresh
+report. The run time comes from an `input_datetime` so that an HA restart or a radio dropout does not reset the 30 min limit
+*(reasoning from planning, not yet observed in operation)*.
 
-**Before deploying:**
-1. Replace the threshold `below: 20` in `ibc_pumpe_sicherung` with ~60 % of the measured normal power (see `docs/einmessen.en.md`).
-2. The entity IDs match (checked 08.10.). `input_boolean.ibc_b_wach_halten` already exists as a UI helper and must **not** be defined again in the package.
-3. Decide on the method: as a YAML package (`packages:` in the HA configuration) or create the automations via UI/API. This is still open.
-4. Plug the pump plug back in; power-outage memory must stay `off`.
+**Still to do:**
+1. Test run (Wed 14.10. 17:30): switch the pump on manually, read the normal power, set `input_number.ibc_pumpe_trockenlauf_schwelle` to ~60 % of it
+   (see `docs/einmessen.en.md`). Check whether "remember pump run" sets start time and level of A, and whether A visibly drops.
+2. Power-outage memory of the plug must stay `off` (checked 13.10.).
+
+**Way back:** disable the `ibc_*` automations in HA; the plug then stays as it is (off after a power failure).
 
 ---
 
@@ -356,18 +381,19 @@ The lock is released **only manually**: switch off `IBC-Pumpe gesperrt` (IBC pum
 
 | When | What | Who |
 |---|---|---|
-| Fri 09.10. 14:30 | E-cig battery self-discharge test: measure (outside the shield). Reference 08.10. 14:25 = 4.137 V. ≥ 4.09 V good, 4.04–4.09 borderline, < 4.04 V discard. Then measure 3V/5V on the right-hand shield | Jens |
-| Fri 09.10. 18:00 | Glue the M12 glands into combined enclosure A, check the colour of the delivery, measure thread length and nut height | Jens |
-| after battery test | Shield 5V + battery to node B, calibrate A0 against multimeter (`adc_faktor`) | Jens |
-| — | Wi-Fi test at location B (D1 on a power bank) → decides on external antenna | Jens |
-| by 22.10. | Mount A (cut-out 70 × 35, self-tapping screws 4.2 + sealing tape) and calibrate | Jens |
-| by 22.10. | Run the pump for the first time → normal power; adapt and deploy the HA package | Jens |
-| **23.10.–01.11.** | **Jens away from home.** No deliveries, no manual work. The pump logic may only run during this time if it has been tested beforehand. Otherwise the plug stays unplugged | — |
+| ~~Fri 09.10. 14:30~~ | ~~E-cig battery self-discharge test~~ → done: the battery is in B and reports 4.11–4.15 V in operation (11/12.10.) | Jens |
+| open | Calibrate A0 of B against the multimeter (`adc_faktor`) – not done yet | Jens |
+| ~~—~~ | ~~Wi-Fi test at location B~~ → done by operation: −60…−73 dBm, no dropouts with static IP. External antenna not needed for now | — |
+| **Wed 14.10. 17:30** | **Pump test run:** switch the plug on manually, read the normal power (W) → dry-run threshold ~60 %; water moving A → B? Start time/level A set? Then off | Jens |
+| **Wed 14.10. 18:00** | **Evaluate power-supply counter-test A:** restarts (`sensor.garten_ibc_wasser_neustart_grund`, uptime) since 13.10. 17:48:20 versus 14 watchdog restarts in ~20 h with the old power supply. 0–1 restarts → the power supply was the cause | — |
+| Sat 18.10. 12:00 | Battery trend B after one week (daily means 11.–18.10., mV/day) → does the battery last through the absence until the panel arrives? | — |
+| by 22.10. | Calibrate A (the empty value is still estimated) | Jens |
+| **23.10.–01.11.** | **Jens away from home.** No deliveries, no manual work. The pump logic has been active since 12.10.; it should only keep running if the test run succeeds beforehand. Otherwise disable the `ibc_*` automations | — |
 | Mon 02.11. 18:00 | Order from reichelt: Seeed Solar 1 W, 2× BZX 85C6V2, EVE 18650-33V, H05RN-F 2 × 0.75 ~3 m. Re-check prices and availability first (as of 07.10. ~€19–20) | Jens |
-| after delivery | Panel + Zener diode to the U1 pads (photo of the pads first), mount node B, install float holder | Jens |
+| after delivery | Panel + Zener diode to the U1 pads (photo of the pads first) | Jens |
 | later | Assess sleep current via the battery voltage curve in HA (no µA measurement planned) | — |
-| open | Length of the float cable up to enclosure B (if not long enough: extend inside with H05RN-F) | Jens |
-| open | Distance plug ↔ enclosure A (USB cable length), Zigbee reception at the location | Jens |
+| ~~open~~ | ~~Length of the float cable~~ → done: float installed and tested on site (12.10.) | — |
+| open | Length and cross-section of the USB cable of A (for the restart question, in case it was not the power supply) | Jens |
 | open | Pump type and flow rate (important for the "10 min < 2 %" rule) | Jens |
 | later, optional | second A02YYUW for a fill level in B (concept with FireBeetle rejected, too expensive) | — |
 
@@ -395,14 +421,14 @@ The lock is released **only manually**: switch off `IBC-Pumpe gesperrt` (IBC pum
 │   ├── ibc_kombi_gehaeuse.stl    A – enclosure          (printed)
 │   ├── ibc_kombi_deckel.stl      A – lid                (printed)
 │   ├── ibc_schwimmer_halter.stl  B – float holder       (printed)
-│   ├── ibc_b_gehaeuse.stl        B – enclosure          (ready to print)
-│   ├── ibc_b_deckel.stl          B – lid                (ready to print)
+│   ├── ibc_b_gehaeuse.stl        B – enclosure          (printed)
+│   ├── ibc_b_deckel.stl          B – lid                (printed)
 │   ├── ibc_b_dichtung.stl        B – lid gasket TPU     (designed)
 │   ├── ibc_sensor_halter.stl     replaced, do not print
 │   ├── ibc_sensor_abdeckung.stl  replaced, do not print
 │   └── vorschau_ibc.png          outdated preview
 ├── ha/
-│   └── ibc-pumpe.yaml            HA package pump logic (draft)
+│   └── ibc-pumpe.yaml            pump logic as HA package (reference, live as UI automations)
 ├── plaene/
 │   ├── ibc-b-schaltplan.pdf      schematic node B
 │   ├── ibc_b_plan.py             source of the schematic
