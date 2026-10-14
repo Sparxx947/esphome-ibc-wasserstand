@@ -102,7 +102,7 @@ Eine externe Antenne (bzw. ein D1 mini Pro) wird erst gekauft, wenn das Ergebnis
 | 3 | Schwimmer B hochklappen (von Hand) | „Zielcontainer voll“ an → bei laufender Pumpe sofort aus + Push. B ist dabei wach, weil die Pumpe läuft. Schläft B, wird das erst beim nächsten Aufwachen erkannt |
 | 4 | Schwimmerkabel abziehen | „voll“ = an, Pumpe aus bzw. startet nicht (ohne Sperre) |
 | 5 | Pumpe von Hand starten, Knoten B stromlos machen | nach > 180 s ohne Meldung: Pumpe aus + Push |
-| 6 | Laufzeitgrenze (in HA `input_datetime.ibc_pumpe_startzeit` testweise > 30 min zurückstellen) | nach Ablauf aus + Sperre + Push; Sperre nur von Hand lösen |
+| 6 | Laufzeitgrenze (in HA `input_datetime.ibc_pumpe_startzeit` testweise > 35 min zurückstellen) | nach Ablauf aus + Sperre + Push; Sperre nur von Hand lösen |
 | 7 | Knoten A stromlos | nach 15 min: Pumpe aus + Push |
 | 8 | Regulärer Lauf A ≥ 90 % → ≤ 70 % | Start beim nächsten B-Aufwachen, Stopp bei 70 %, B schläft danach wieder |
 | 9 | Akkuverlauf B über einige Tage | kein stetiger Abfall bei Sonne. Sonst ist der Ruhestrom zu hoch, etwa durch eine schlechte Shield-Charge |

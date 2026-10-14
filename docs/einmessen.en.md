@@ -158,4 +158,4 @@ If the battery fails, the EVE 18650-33V from the reichelt order on 02.11. will b
    (In the package draft `ha/ibc-pumpe.yaml` it would be `below: 20` in the same automation.)
 4. **Check the flow rate:** the rule "dropped less than 2 % after 10 min → lock" requires at least ~2 l/min, because 2 % ≈ 20 l.
    Read the fill level of A after 10 min of run time. If the pump delivers close to this limit, adjust the threshold or the time.
-5. Check whether A gets from 90 % to 70 % within 30 min (run-time limit), i.e. ~200 l. Otherwise the 30 min lock will trigger every time.
+5. Check whether A gets from 90 % to 70 % within 35 min (run-time limit, 30 min until 14.10.), i.e. ~200 l (≥ ~5.7 l/min). Otherwise the 35 min lock will trigger every time.

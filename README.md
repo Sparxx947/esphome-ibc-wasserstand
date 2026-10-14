@@ -340,7 +340,7 @@ Abweichungen der Live-Fassung. Push geht nur an Jens' Handy (`notify.mobile_app_
 
 | Helfer | Zweck |
 |---|---|
-| `input_boolean.ibc_pumpe_gesperrt` | Sperre nach Trockenlauf, 30 min Laufzeit oder „A sinkt nicht“. Nur von Hand lösen |
+| `input_boolean.ibc_pumpe_gesperrt` | Sperre nach Trockenlauf, 35 min Laufzeit oder „A sinkt nicht“. Nur von Hand lösen |
 | `input_boolean.ibc_b_wach_halten` | hält Knoten B wach (schon seit 07.10. vorhanden); setzt jetzt auch die Pumpenautomation |
 | `input_datetime.ibc_pumpe_startzeit` | Startzeit des laufenden Pumpenlaufs (neu ggü. Entwurf) |
 | `input_number.ibc_a_stand_bei_pumpenstart` | Stand A beim Pumpenstart (im Entwurf `ibc_a_startstand`) |
@@ -354,7 +354,7 @@ Abweichungen der Live-Fassung. Push geht nur an Jens' Handy (`notify.mobile_app_
 | `ibc_pumpe_lauf` | Pumpe aus → an / an → aus (auch von Hand) | an: Startzeit und Stand A merken. aus: `IBC B wach halten` aus, B darf schlafen |
 | `ibc_pumpe_aus_normal` | A < 70 % | Pumpe aus |
 | `ibc_pumpe_aus_ziel_voll` | Ziel voll → an | Lief die Pumpe: aus + Push. Immer: `IBC B wach halten` aus |
-| `ibc_pumpe_sicherung` | jede Minute, solange die Pumpe läuft; Leistung unter dem Schwellen-Helfer für 20 s | Laufzeit ≥ 30 min, nach 10 min weniger als 2 % gesunken oder Leistung zu niedrig → aus + **Sperre** + Push mit Grund. Laufzeit aus `input_datetime`, nicht per `for:` |
+| `ibc_pumpe_sicherung` | jede Minute, solange die Pumpe läuft; Leistung unter dem Schwellen-Helfer für 20 s | Laufzeit ≥ 35 min, nach 10 min weniger als 2 % gesunken oder Leistung zu niedrig → aus + **Sperre** + Push mit Grund. Laufzeit aus `input_datetime`, nicht per `for:` |
 | `ibc_sensor_ausfall` | Füllstand A 15 min `unavailable` | Pumpe aus + Push. Kurze Watchdog-Neustarts von A (Sekunden) lösen das nicht aus |
 | `ibc_pumpe_aus_b_stumm` | Pumpe an und B > 180 s ohne Meldung bzw. Schwimmer `unavailable`/`unknown` | Pumpe aus + Push |
 | `ibc_b_lebenszeichen` | B > 40 min still | Push (Pumpe startet so lange nicht) |
@@ -363,7 +363,7 @@ Abweichungen der Live-Fassung. Push geht nur an Jens' Handy (`notify.mobile_app_
 
 **Warum anders als im Entwurf:** Knoten B entscheidet nur ~1 s nach dem Melden, ob er wieder schläft. Der Entwurf hätte die Pumpe zwar beim
 Melden gestartet, B aber schon wieder schlafen lassen. Deshalb setzt die EIN-Automation erst „wach halten“, und die Pumpe startet bei der
-nächsten frischen Meldung. Die Laufzeit kommt aus einem `input_datetime`, damit ein HA-Neustart oder ein Funkaussetzer die 30-min-Grenze
+nächsten frischen Meldung. Die Laufzeit kommt aus einem `input_datetime`, damit ein HA-Neustart oder ein Funkaussetzer die 35-min-Grenze
 nicht zurücksetzt *(Begründung aus der Planung, im Betrieb noch nicht beobachtet)*.
 
 **Noch zu tun:**
