@@ -152,4 +152,4 @@ Fällt der Akku durch, kommt der EVE 18650-33V aus der reichelt-Bestellung am 02
    (Im Paketentwurf `ha/ibc-pumpe.yaml` stünde er als `below: 20` in derselben Automation.)
 4. **Fördermenge prüfen:** Die Regel „nach 10 min weniger als 2 % gesunken → Sperre“ setzt mindestens ~2 l/min voraus, denn 2 % ≈ 20 l.
    Den Füllstand von A nach 10 min Laufzeit ablesen. Fördert die Pumpe nahe dieser Grenze, Schwelle oder Zeit anpassen.
-5. Prüfen, ob A in 30 min (Laufzeitgrenze) von 90 % auf 70 % kommt, also ~200 l. Sonst greift jedes Mal die 30-min-Sperre.
+5. Prüfen, ob A in 35 min (Laufzeitgrenze, bis 14.10. 30 min) von 90 % auf 70 % kommt, also ~200 l (≥ ~5,7 l/min). Sonst greift jedes Mal die 35-min-Sperre.

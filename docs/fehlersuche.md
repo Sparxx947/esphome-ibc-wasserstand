@@ -40,7 +40,7 @@ Zurück zur [README](../README.md). Bekannte Fehlerbilder aus dem Projektverlauf
 | Fehlerbild | Ursache | Lösung |
 |---|---|---|
 | A > 90 %, aber Pumpe startet nicht sofort | **Absicht:** Die EIN-Automation setzt zuerst „wach halten“; die Pumpe startet erst, wenn B sich frisch gemeldet hat (< 120 s), also beim nächsten Aufwachen (≤ 15 min) | abwarten; sonst Sperre, „Ziel voll“ und Lebenszeichen von B prüfen |
-| Pumpe startet gar nicht mehr | `IBC-Pumpe gesperrt` ist an (nach Trockenlauf oder 30 min) | Ursache vor Ort ansehen, dann die Sperre **von Hand** ausschalten |
+| Pumpe startet gar nicht mehr | `IBC-Pumpe gesperrt` ist an (nach Trockenlauf oder 35 min) | Ursache vor Ort ansehen, dann die Sperre **von Hand** ausschalten |
 | Push „Pumpe gesperrt – Leistung zu niedrig“, obwohl alles gefördert hat | Die Schwelle `input_number.ibc_pumpe_trockenlauf_schwelle` ist zu hoch für die aktuelle Förderhöhe (seit 14.10. 105 W bei 175 W normal) | Leistung im Lauf ablesen, Schwelle auf ~60 % davon setzen |
 | Push „A sinkt nicht“ | Leitung zu, Pumpe zieht Luft, Kugelhahn zu; oder die Pumpe fördert weniger als ~2 l/min | Leitung und Hahn prüfen; ggf. Regel anpassen |
 | Push „Knoten B meldet sich nicht“ | Akku leer, WLAN, Knoten hängt im Tiefschlaf ohne D0–RST | Akku/Panel, WLAN-Signal, Reset |

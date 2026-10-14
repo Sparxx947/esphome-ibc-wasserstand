@@ -102,7 +102,7 @@ An external antenna (or a D1 mini Pro) is only bought if the result is poor.
 | 3 | Flip float B up (by hand) | "Zielcontainer voll" (target container full) on → with the pump running, immediately off + push. B is awake at this point because the pump is running. If B is asleep, this is only detected at the next wake-up |
 | 4 | Disconnect the float cable | "voll" (full) = on, pump off or does not start (without lock) |
 | 5 | Start the pump manually, power down node B | after > 180 s without a report: pump off + push |
-| 6 | Run-time limit (for testing, set `input_datetime.ibc_pumpe_startzeit` back by > 30 min in HA) | after expiry off + lock + push; lock only released manually |
+| 6 | Run-time limit (for testing, set `input_datetime.ibc_pumpe_startzeit` back by > 35 min in HA) | after expiry off + lock + push; lock only released manually |
 | 7 | Node A without power | after 15 min: pump off + push |
 | 8 | Regular run A ≥ 90 % → ≤ 70 % | start at the next B wake-up, stop at 70 %, B sleeps again afterwards |
 | 9 | Battery curve B over a few days | no steady decline in sunshine. Otherwise the quiescent current is too high, e.g. due to a bad shield batch |

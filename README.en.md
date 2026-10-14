@@ -342,7 +342,7 @@ differences of the live version. Push notifications go only to Jens' phone (`not
 
 | Helper | Purpose |
 |---|---|
-| `input_boolean.ibc_pumpe_gesperrt` | lock after dry run, 30 min run time or "A does not drop". Release only manually |
+| `input_boolean.ibc_pumpe_gesperrt` | lock after dry run, 35 min run time or "A does not drop". Release only manually |
 | `input_boolean.ibc_b_wach_halten` | keeps node B awake (exists since 07.10.); now also set by the pump automation |
 | `input_datetime.ibc_pumpe_startzeit` | start time of the current pump run (new compared to the draft) |
 | `input_number.ibc_a_stand_bei_pumpenstart` | level of A at pump start (`ibc_a_startstand` in the draft) |
@@ -356,7 +356,7 @@ differences of the live version. Push notifications go only to Jens' phone (`not
 | `ibc_pumpe_lauf` | pump off → on / on → off (also manual) | on: remember start time and level of A. off: `IBC B wach halten` off, B may sleep |
 | `ibc_pumpe_aus_normal` | A < 70 % | pump off |
 | `ibc_pumpe_aus_ziel_voll` | target full → on | if the pump was running: off + push. Always: `IBC B wach halten` off |
-| `ibc_pumpe_sicherung` | every minute while the pump runs; power below the threshold helper for 20 s | run time ≥ 30 min, dropped less than 2 % after 10 min, or power too low → off + **lock** + push with reason. Run time from `input_datetime`, not via `for:` |
+| `ibc_pumpe_sicherung` | every minute while the pump runs; power below the threshold helper for 20 s | run time ≥ 35 min, dropped less than 2 % after 10 min, or power too low → off + **lock** + push with reason. Run time from `input_datetime`, not via `for:` |
 | `ibc_sensor_ausfall` | fill level A `unavailable` for 15 min | pump off + push. Short watchdog restarts of A (seconds) do not trigger this |
 | `ibc_pumpe_aus_b_stumm` | pump on and B > 180 s without a report, or float `unavailable`/`unknown` | pump off + push |
 | `ibc_b_lebenszeichen` | B silent > 40 min | push (pump will not start in the meantime) |
@@ -365,7 +365,7 @@ differences of the live version. Push notifications go only to Jens' phone (`not
 
 **Why it differs from the draft:** node B decides only ~1 s after reporting whether it goes back to sleep. The draft would have started the pump
 on the report but already let B fall asleep again. Therefore the ON automation first sets "keep awake", and the pump starts at the next fresh
-report. The run time comes from an `input_datetime` so that an HA restart or a radio dropout does not reset the 30 min limit
+report. The run time comes from an `input_datetime` so that an HA restart or a radio dropout does not reset the 35 min limit
 *(reasoning from planning, not yet observed in operation)*.
 
 **Still to do:**
