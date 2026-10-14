@@ -9,6 +9,11 @@
 # Pumpe A → B/C schaltet Home Assistant ueber die Zigbee-Steckdose (siehe ~/esphome/ha/ibc-pumpe.yaml).
 # Stand 04.10.2026 — Notiz project_ibc_wasserstand
 # 11.10.: debug + Neustart-Grund (A startete ~1x/h neu; Verdacht Unterspannung am langen USB-Kabel, unbelegt)
+# 14.10.: Netzteil als Ursache ausgeschlossen (17 HW-Watchdog-Neustarts/23 h auch mit neuem Netzteil).
+#   Befund: Logger belegte UART0 → der Sensor an GPIO13 lief ueber SOFTWARE-Serial (Bit-Interrupts bei
+#   Dauerstrom alle 100 ms, auf dem ESP8266 bekannt fuer Watchdog-Resets zusammen mit WLAN).
+#   Aenderung: Logger auf UART1 (nur TX an GPIO2/D4) → ESPHome nimmt fuer RX GPIO13 UART0 getauscht (Hardware).
+#   Dazu reine Diagnose: Schleifenzeit, groesster freier Block, Heap-Fragmentierung. Rueckweg: .vor-hwuart-20261014
 
 substitutions:
   name: ibc-wasser
@@ -28,6 +33,7 @@ esp8266:
 
 logger:
   level: INFO
+  hardware_uart: UART1     # 14.10.: UART0 fuer den Sensor freigeben (Hardware statt Software-Serial)
 
 api:
   encryption:
@@ -112,5 +118,14 @@ sensor:
   - platform: debug
     free:
       name: Freier Speicher
+      entity_category: diagnostic
+    block:
+      name: Größter freier Block
+      entity_category: diagnostic
+    fragmentation:
+      name: Heap-Fragmentierung
+      entity_category: diagnostic
+    loop_time:
+      name: Schleifenzeit
       entity_category: diagnostic
 
