@@ -41,7 +41,7 @@ Back to the [README](../README.en.md). Known failure patterns from the project h
 |---|---|---|
 | A > 90 %, but the pump does not start immediately | **Intentional:** the ON automation first sets "keep awake"; the pump only starts when B has reported freshly (< 120 s), i.e. at the next wake-up (≤ 15 min) | wait; otherwise check lock, "target full" and B's sign of life |
 | Pump does not start at all any more | `IBC-Pumpe gesperrt` (IBC pump locked) is on (after dry run or 30 min) | Inspect the cause on site, then switch off the lock **manually** |
-| Push "Pumpe gesperrt – Leistung zu niedrig" (pump locked – power too low), although everything was pumped | The threshold `input_number.ibc_pumpe_trockenlauf_schwelle` is still at the provisional value of 20 W | set it to ~60 % of the normal power (test run 14.10.) |
+| Push "Pumpe gesperrt – Leistung zu niedrig" (pump locked – power too low), although everything was pumped | The threshold `input_number.ibc_pumpe_trockenlauf_schwelle` is too high for the current pumping head (105 W since 14.10. at 175 W normal) | read the power during a run, set the threshold to ~60 % of it |
 | Push "A sinkt nicht" (A is not dropping) | Line blocked, pump drawing air, ball valve closed; or the pump delivers less than ~2 l/min | Check line and valve; adjust the rule if necessary |
 | Push "Knoten B meldet sich nicht" (node B is not reporting) | Battery empty, Wi-Fi, node stuck in deep sleep without D0–RST | Battery/panel, Wi-Fi signal, reset |
 | Pump starts after a power failure *(precautionary)* | Power-outage memory of the plug not `off` | set to `off` (configured this way since 07.10.) |

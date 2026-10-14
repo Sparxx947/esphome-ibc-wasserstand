@@ -70,7 +70,7 @@ Meldet sich Knoten B nicht, startet die Pumpe nicht. Nach einem Stromausfall ble
 | Akku B | ✅ E-Zigarettenakku, Selbstentladetest bestanden (im Betrieb 4,12 V) | 11.10. |
 | Solarpanel, Z-Diode, EVE-Akku, Panelkabel | ⬜ nicht bestellt, reichelt-Bestellung geplant | 02.11. |
 | Pumpenlogik in HA | ✅ **aktiv** seit 12.10. ~18:45 als UI-Helfer + 10 UI-Automationen (Abschnitt 8); ⬜ im echten Pumpenlauf **noch ungetestet** | 12.10. |
-| Pumpen-Normalleistung, Trockenlauf-Schwelle | ⬜ Schwelle **vorläufig 20 W** (Helfer); Normalleistung erst beim Probelauf messbar | Probelauf Mi 14.10. 17:30 |
+| Pumpen-Normalleistung, Trockenlauf-Schwelle | ✅ Probelauf 14.10.: **175 W** normal → Schwelle **105 W** (Helfer). Leistung bei echtem Trockenlauf ungemessen | — |
 
 ---
 
@@ -334,7 +334,7 @@ Inhalt L        = Füllstand % / 100 × 1000
 **Seit 12.10.2026 ~18:45 aktiv.** Die Logik läuft als **UI-Helfer und 10 UI-Automationen** (IDs `ibc_*`), weil diese HA-Installation keine
 `packages:` nutzt. [`ha/ibc-pumpe.yaml`](ha/ibc-pumpe.yaml) ist der ursprüngliche Paketentwurf und dient nur noch als **Referenz**; ihr Kopf listet die
 Abweichungen der Live-Fassung. Push geht nur an Jens' Handy (`notify.mobile_app_dein_handy`).
-**Im echten Pumpenlauf ist die Logik noch ungetestet** (A stand am 12./13.10. bei ~45 %, Start erst über 90 %). Probelauf: Mi 14.10. 17:30.
+**Probelauf 14.10. bestanden** (von Hand geschaltet, ~66 s): 175–176 W konstant, Förderung A → B sichtbar, A 46,3 → 45,4 %, „Pumpenlauf merken“ setzte Startzeit und Stand. Den automatischen Start bei A ≥ 90 % hat noch kein echter Lauf ausgelöst.
 
 **Helfer**
 
@@ -344,7 +344,7 @@ Abweichungen der Live-Fassung. Push geht nur an Jens' Handy (`notify.mobile_app_
 | `input_boolean.ibc_b_wach_halten` | hält Knoten B wach (schon seit 07.10. vorhanden); setzt jetzt auch die Pumpenautomation |
 | `input_datetime.ibc_pumpe_startzeit` | Startzeit des laufenden Pumpenlaufs (neu ggü. Entwurf) |
 | `input_number.ibc_a_stand_bei_pumpenstart` | Stand A beim Pumpenstart (im Entwurf `ibc_a_startstand`) |
-| `input_number.ibc_pumpe_trockenlauf_schwelle` | Leistungsschwelle für Trockenlauf, **vorläufig 20 W** (neu ggü. Entwurf) |
+| `input_number.ibc_pumpe_trockenlauf_schwelle` | Leistungsschwelle für Trockenlauf, **105 W** = 60 % von 175 W (Probelauf 14.10.; neu ggü. Entwurf) |
 
 **Automationen (live, gelesen 13.10.2026)**
 
@@ -367,7 +367,7 @@ nächsten frischen Meldung. Die Laufzeit kommt aus einem `input_datetime`, damit
 nicht zurücksetzt *(Begründung aus der Planung, im Betrieb noch nicht beobachtet)*.
 
 **Noch zu tun:**
-1. Probelauf (Mi 14.10. 17:30): Pumpe von Hand an, Normalleistung ablesen, `input_number.ibc_pumpe_trockenlauf_schwelle` auf ~60 % davon setzen
+1. ~~Probelauf~~ erledigt 14.10.: 175 W, Schwelle 105 W
    (siehe `docs/einmessen.md`). Prüfen, ob „Pumpenlauf merken“ Startzeit und Stand A setzt und ob A sichtbar sinkt.
 2. Power-outage-memory der Steckdose muss `off` bleiben (geprüft 13.10.).
 
@@ -382,7 +382,7 @@ nicht zurücksetzt *(Begründung aus der Planung, im Betrieb noch nicht beobacht
 | ~~Fr 09.10. 14:30~~ | ~~E-Zig-Akku Selbstentladetest~~ → erledigt: Akku steckt in B, meldet im Betrieb 4,11–4,15 V (11./12.10.) | Jens |
 | offen | A0 von B gegen Multimeter abgleichen (`adc_faktor`) – bisher nicht gemacht | Jens |
 | ~~—~~ | ~~WLAN-Test am Standort B~~ → erledigt durch den Betrieb: −60…−73 dBm, mit fester IP keine Aussetzer. Externe Antenne derzeit nicht nötig | — |
-| **Mi 14.10. 17:30** | **Pumpe Probelauf:** Steckdose von Hand an, Normalleistung (W) ablesen → Trockenlauf-Schwelle ~60 %; Förderung A → B sichtbar? Startzeit/Stand A gesetzt? Danach aus | Jens |
+| ~~Mi 14.10. 17:30~~ | ✅ **Pumpe Probelauf erledigt:** 175 W, Schwelle 105 W, Förderung A → B sichtbar, Startzeit/Stand A gesetzt | — |
 | **Mi 14.10. 18:00** | **Netzteil-Gegenprobe A auswerten:** Neustarts (`sensor.garten_ibc_wasser_neustart_grund`, Laufzeit) seit 13.10. 17:48:20 gegen 14 Watchdog-Neustarts in ~20 h mit altem Netzteil. 0–1 Neustarts → Netzteil war die Ursache | — |
 | Sa 18.10. 12:00 | Akkutrend B nach einer Woche (Tagesmittel 11.–18.10., mV/Tag) → reicht der Akku über die Abwesenheit bis zum Panel? | — |
 | bis 22.10. | A einmessen (Leer-Wert ist noch geschätzt) | Jens |

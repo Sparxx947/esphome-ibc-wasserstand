@@ -154,7 +154,7 @@ If the battery fails, the EVE 18650-33V from the reichelt order on 02.11. will b
 
 1. Plug in the plug. During the **first real run** (A well filled, hose to B open) read the power `sensor.steckdose_ibc_wassercontainer_pumpe_power` after ~1 min: `P_normal`.
 2. Calculate the threshold: `P_schwelle ≈ 0,6 × P_normal` (Schwelle = threshold), e.g. 350 W → 210 W.
-3. In HA set the helper `input_number.ibc_pumpe_trockenlauf_schwelle` (provisionally 20 W) to `P_schwelle`. The automation `ibc_pumpe_sicherung` reads the value from there.
+3. In HA set the helper `input_number.ibc_pumpe_trockenlauf_schwelle` (provisionally 20 W until 14.10.) to `P_schwelle`. **Measured 14.10.: `P_normal` = 175 W → 105 W.** The automation `ibc_pumpe_sicherung` reads the value from there.
    (In the package draft `ha/ibc-pumpe.yaml` it would be `below: 20` in the same automation.)
 4. **Check the flow rate:** the rule "dropped less than 2 % after 10 min → lock" requires at least ~2 l/min, because 2 % ≈ 20 l.
    Read the fill level of A after 10 min of run time. If the pump delivers close to this limit, adjust the threshold or the time.
