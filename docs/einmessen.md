@@ -148,7 +148,7 @@ Fällt der Akku durch, kommt der EVE 18650-33V aus der reichelt-Bestellung am 02
 
 1. Steckdose einstecken. Beim **ersten echten Lauf** (A gut gefüllt, Schlauch zu B offen) die Leistung `sensor.steckdose_ibc_wassercontainer_pumpe_power` nach ~1 min ablesen: `P_normal`.
 2. Schwelle rechnen: `P_schwelle ≈ 0,6 × P_normal`, z. B. 350 W → 210 W.
-3. In HA den Helfer `input_number.ibc_pumpe_trockenlauf_schwelle` (vorläufig 20 W) auf `P_schwelle` setzen. Die Automation `ibc_pumpe_sicherung` liest den Wert von dort.
+3. In HA den Helfer `input_number.ibc_pumpe_trockenlauf_schwelle` (bis 14.10. vorläufig 20 W) auf `P_schwelle` setzen. **Gemessen 14.10.: `P_normal` = 175 W → 105 W.** Die Automation `ibc_pumpe_sicherung` liest den Wert von dort.
    (Im Paketentwurf `ha/ibc-pumpe.yaml` stünde er als `below: 20` in derselben Automation.)
 4. **Fördermenge prüfen:** Die Regel „nach 10 min weniger als 2 % gesunken → Sperre“ setzt mindestens ~2 l/min voraus, denn 2 % ≈ 20 l.
    Den Füllstand von A nach 10 min Laufzeit ablesen. Fördert die Pumpe nahe dieser Grenze, Schwelle oder Zeit anpassen.

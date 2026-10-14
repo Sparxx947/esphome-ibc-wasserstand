@@ -70,7 +70,7 @@ If node B does not report, the pump does not start. After a power failure the pl
 | Battery B | ✅ e-cigarette battery, self-discharge test passed (4.12 V in operation) | 11.10. |
 | Solar panel, Zener diode, EVE battery, panel cable | ⬜ not ordered, reichelt order planned | 02.11. |
 | Pump logic in HA | ✅ **active** since 12.10. ~18:45 as UI helpers + 10 UI automations (section 8); ⬜ **not yet tested** in a real pump run | 12.10. |
-| Normal pump power, dry-run threshold | ⬜ threshold **provisionally 20 W** (helper); normal power only measurable in the test run | test run Wed 14.10. 17:30 |
+| Normal pump power, dry-run threshold | ✅ test run 14.10.: **175 W** normal → threshold **105 W** (helper). Power during a real dry run not measured | — |
 
 ---
 
@@ -336,7 +336,7 @@ Inhalt L        = Füllstand % / 100 × 1000
 **Active since 12.10.2026 ~18:45.** The logic runs as **UI helpers and 10 UI automations** (IDs `ibc_*`), because this HA installation does not use
 `packages:`. [`ha/ibc-pumpe.yaml`](ha/ibc-pumpe.yaml) is the original package draft and now serves only as a **reference**; its header lists the
 differences of the live version. Push notifications go only to Jens' phone (`notify.mobile_app_dein_handy`).
-**The logic has not yet been tested in a real pump run** (A was at ~45 % on 12/13.10., start only above 90 %). Test run: Wed 14.10. 17:30.
+**Test run 14.10. passed** (switched manually, ~66 s): 175–176 W steady, water moving A → B, A 46.3 → 45.4 %, "remember pump run" stored start time and level. The automatic start at A ≥ 90 % has not yet been triggered by a real run.
 
 **Helpers**
 
@@ -346,7 +346,7 @@ differences of the live version. Push notifications go only to Jens' phone (`not
 | `input_boolean.ibc_b_wach_halten` | keeps node B awake (exists since 07.10.); now also set by the pump automation |
 | `input_datetime.ibc_pumpe_startzeit` | start time of the current pump run (new compared to the draft) |
 | `input_number.ibc_a_stand_bei_pumpenstart` | level of A at pump start (`ibc_a_startstand` in the draft) |
-| `input_number.ibc_pumpe_trockenlauf_schwelle` | power threshold for dry run, **provisionally 20 W** (new compared to the draft) |
+| `input_number.ibc_pumpe_trockenlauf_schwelle` | power threshold for dry run, **105 W** = 60 % of 175 W (test run 14.10.; new compared to the draft) |
 
 **Automations (live, read 13.10.2026)**
 
@@ -369,7 +369,7 @@ report. The run time comes from an `input_datetime` so that an HA restart or a r
 *(reasoning from planning, not yet observed in operation)*.
 
 **Still to do:**
-1. Test run (Wed 14.10. 17:30): switch the pump on manually, read the normal power, set `input_number.ibc_pumpe_trockenlauf_schwelle` to ~60 % of it
+1. ~~Test run~~ done 14.10.: 175 W, threshold 105 W
    (see `docs/einmessen.en.md`). Check whether "remember pump run" sets start time and level of A, and whether A visibly drops.
 2. Power-outage memory of the plug must stay `off` (checked 13.10.).
 
@@ -384,7 +384,7 @@ report. The run time comes from an `input_datetime` so that an HA restart or a r
 | ~~Fri 09.10. 14:30~~ | ~~E-cig battery self-discharge test~~ → done: the battery is in B and reports 4.11–4.15 V in operation (11/12.10.) | Jens |
 | open | Calibrate A0 of B against the multimeter (`adc_faktor`) – not done yet | Jens |
 | ~~—~~ | ~~Wi-Fi test at location B~~ → done by operation: −60…−73 dBm, no dropouts with static IP. External antenna not needed for now | — |
-| **Wed 14.10. 17:30** | **Pump test run:** switch the plug on manually, read the normal power (W) → dry-run threshold ~60 %; water moving A → B? Start time/level A set? Then off | Jens |
+| ~~Wed 14.10. 17:30~~ | ✅ **Pump test run done:** 175 W, threshold 105 W, water moving A → B, start time/level A stored | — |
 | **Wed 14.10. 18:00** | **Evaluate power-supply counter-test A:** restarts (`sensor.garten_ibc_wasser_neustart_grund`, uptime) since 13.10. 17:48:20 versus 14 watchdog restarts in ~20 h with the old power supply. 0–1 restarts → the power supply was the cause | — |
 | Sat 18.10. 12:00 | Battery trend B after one week (daily means 11.–18.10., mV/day) → does the battery last through the absence until the panel arrives? | — |
 | by 22.10. | Calibrate A (the empty value is still estimated) | Jens |
