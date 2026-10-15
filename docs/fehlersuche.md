@@ -2,13 +2,13 @@
 
 # Fehlersuche
 
-Zurück zur [README](../README.md). Bekannte Fehlerbilder aus dem Projektverlauf (04.–13.10.2026). Was nur vorbeugend beschrieben ist, steht als *(vorbeugend)* da.
+Zurück zur [README](../README.md). Bekannte Fehlerbilder aus dem Projektverlauf (04.–15.10.2026). Was nur vorbeugend beschrieben ist, steht als *(vorbeugend)* da.
 
 ## Knoten A (`ibc-wasser`)
 
 | Fehlerbild | Ursache | Lösung |
 |---|---|---|
-| A startet oft neu (`Laufzeit` fällt auf wenige Sekunden) | **Noch offen.** 11./12.10.: 14 Neustarts in ~20 h, alle „Hardware Watchdog“ (CPU hängt > ~8 s). Das WLAN-Signal erklärt die Häufung nicht (abends gehäuft, morgens bei besserem Signal weiter). Unterspannung bleibt Verdacht *(ungeprüft)*; der ESP8266 meldet keinen eigenen Brownout-Grund. Gegenprobe: Netzteil am 13.10. 17:47 getauscht, Ergebnis ab 14.10. 18:00 | `Neustart-Grund` ansehen: „Power On“/„External“ → Stromversorgung (Netzteil, dünnes/langes USB-Kabel); „Hardware/Software Watchdog“ → eher WLAN-Signal oder Firmware. Immer nur eine Sache ändern und Neustarts vorher/nachher zählen |
+| A startet oft neu (`Laufzeit` fällt auf wenige Sekunden) | **Gelöst (15.10.).** ~0,7 Neustarts/h, alle „Hardware Watchdog“. Der Logger belegte UART0, deshalb las ESPHome den Sensor an GPIO13 über **Software-Serial** (Bit-Interrupts alle ~100 ms neben dem WLAN). WLAN-Signal und Netzteil waren es nicht (Netzteiltausch 13.10. ohne Wirkung) | `logger: hardware_uart: UART1` → Sensor läuft über Hardware-UART0 (getauscht, RX GPIO13). Danach 0 Neustarts in 21,3 h, Schleifenzeit 18–23 ms. Allgemein: `Neustart-Grund` ansehen, immer nur eine Sache ändern und Neustarts vorher/nachher zählen |
 | Füllstand springt oder zeigt bei fast leerem Container Unsinn *(vorbeugend)* | 60°-Schallkegel: Echos von Wand, Steigrohr der Pumpe oder Wellschlauch | Stelle ≥ 30 cm von der Pumpe und ≥ 20 cm von der Wand; der Medianfilter (15) fängt Einzelechos ab |
 | Kein Wert / `nan` bei sehr vollem Container | Der Sensor ist unter ~30 mm blind | 100 % liegt deshalb bei 50 mm. Ab 97 % kommt ein Push |
 | Sensor liefert andere Daten / Werte nur auf Anforderung | Die gelbe Ader (RX/Modus) liegt auf Masse | gelb frei lassen |
