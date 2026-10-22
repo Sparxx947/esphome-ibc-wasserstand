@@ -67,8 +67,10 @@ Meldet sich Knoten B nicht, startet die Pumpe nicht. Nach einem Stromausfall ble
 | Schwimmertest B am Standort | ✅ bestanden: zwei Durchgänge, „Zielcontainer voll“ jeweils sofort an und wieder aus, kein Prellen | 12.10. 18:21–18:23 |
 | Deckeldichtung B (TPU) | ✅ konstruiert, Kollision geprüft; ⬜ nicht gedruckt | 09.10. |
 | Deckelschrauben B 3 × 12 | ⬜ fehlen, kaufen | — |
-| Akku B | ✅ E-Zigarettenakku, Selbstentladetest bestanden (im Betrieb 4,12 V) | 11.10. |
-| Solarpanel, Z-Diode, EVE-Akku, Panelkabel | ⬜ nicht bestellt, reichelt-Bestellung geplant | 02.11. |
+| Akku B | ✅ E-Zigarettenakku, Selbstentladetest bestanden (im Betrieb 4,12 V); am 21.10. durch EVE 18650-33V ersetzt | 11.10. / 21.10. |
+| Solarpanel, Z-Diode, EVE-Akku | ✅ geliefert (reichelt, 20.10.), Panel + Z-Diode angelötet, EVE-Akku eingesetzt; B wieder am Standort | 21.10. |
+| Laden über das Panel | ⬜ **noch nicht belegt**: Zelle fast voll (4,18 V), Spannung tagsüber flach, nachts ~4 mV/h Abfall. Beleg über die Lade-LED oder eine Strommessung | 22.10. |
+| Solarpanel-Halter (Keil, Rahmen mit Einschub-Nut, Riegel) | ✅ konstruiert und gedruckt (Neudruck 21.10., erster Druck 20.10. misslungen); ⬜ Passprobe und Montage offen | 21.10. |
 | Pumpenlogik in HA | ✅ **aktiv** seit 12.10. ~18:45 als UI-Helfer + 10 UI-Automationen (Abschnitt 8); ⬜ im echten Pumpenlauf **noch ungetestet** | 12.10. |
 | Pumpen-Normalleistung, Trockenlauf-Schwelle | ✅ Probelauf 14.10.: **175 W** normal → Schwelle **105 W** (Helfer). Leistung bei echtem Trockenlauf ungemessen | — |
 
@@ -101,10 +103,12 @@ Preise und Artikelnummern nur dort, wo sie in den Notizen belegt sind. „—“
 | Mikrocontroller | 1 | Wemos D1 mini (ESP8266, CH340) | Bestand | vorhanden, geflasht |
 | Akku-Shield | 1 | „18650 Battery Shield V3“, **rechte Ausführung** (Input-Buchse U1 nicht bestückt, Diode SS24 vorhanden). Bestückung vermutlich TC4056A + DW01/8205 + FP6298 *(nach Layout abgeleitet, Aufdrucke unlesbar)* | Bestand | vorhanden, Polung geprüft |
 | Akku (Variante 1) | 1 | 18650 aus einer E-Zigarette, vermutlich ungeschützte Hochstromzelle | Bestand | im Selbstentladetest bis 09.10. |
-| Akku (Variante 2) | 1 | EVE 18650-33V, Flat-Top | reichelt, 6,82 € | nicht bestellt (02.11.) |
-| Solarpanel | 1 | Seeed DEBO SOLAR 1.0W, 5,5 V / ~170 mA, **Leerlauf bis 8,2 V** | reichelt, 6,20 € (lieferbar ab 23.10.) | nicht bestellt (02.11.) |
-| Z-Diode | 2 (1 + Reserve) | BZX 85C6V2, 6,2 V / 1,3 W | reichelt, 0,06 €/Stk | nicht bestellt (02.11.) |
-| Panelkabel | ~3 m | H05RN-F 2 × 0,75 mm² (außen) | reichelt, — | nicht bestellt (02.11.) |
+| Akku (Variante 2) | 1 | EVE 18650-33V, Flat-Top | reichelt, 6,82 € | **eingebaut 21.10.** (ersetzt Variante 1) |
+| Solarpanel | 1 | Seeed DEBO SOLAR 1.0W, 5,5 V / ~170 mA, **Leerlauf bis 8,2 V**, 100 × 80 × 2,33 mm (gemessen) | reichelt, 6,20 € | geliefert 20.10., angeschlossen 21.10. |
+| Z-Diode | 2 (1 + Reserve) | BZX 85C6V2, 6,2 V / 1,3 W | reichelt, 0,06 €/Stk | eingebaut 21.10. |
+| Panelkabel | ~3 m | H05RN-F 2 × 0,75 mm² (außen) | bei reichelt nicht erhältlich (nur 50-m-Ring H05RR-F) | Bezug nicht dokumentiert |
+| Solarpanel-Halter | 1 + 1 + 1 | `solar_keil.stl` + `solar_rahmen.stl` + `solar_riegel.stl` (Abschnitt 5) | Eigendruck, PETG/ASA | gedruckt 21.10. |
+| Schrauben Halter | 4 + 4 + 2 | Holzschraube 4 × 30 Senkkopf (Keil → Wand), 3 × 12 (Rahmen → Keil, Riegel → Rahmen) | — | — |
 | Widerstände | 2 | 100 kΩ + 22 kΩ in Reihe (gemessen zusammen 121,5 kΩ) | Sortiment | eingebaut 08.10. |
 | Drahtbrücke | 1 | D0 (GPIO16) → RST, für den Tiefschlaf | — | eingebaut 08.10. |
 | Schwimmerschalter | 1 | seitlicher Einbau-Schwimmer mit Klappschwimmer (Reed, 2 Adern, ~3 mm Kabel), Gewinde Ø 19 mm × 19,5 mm, Dichtring + Mutter; Pfeil am Körper = Einbaulage | Bestand | vorhanden |
@@ -151,8 +155,9 @@ Die Aderfarben stammen aus dem Werkstattbuch und sind gegen den gelieferten Sens
 
 | Von | Nach | Hinweis |
 |---|---|---|
-| Solarpanel + | Z-Diode Kathode (Ring) → Shield-Pads U1 **VBUS** | Z-Diode **parallel** zum Eingang. Vor dem Löten Foto der Pads machen und klären, welches Pad VBUS ist |
-| Solarpanel − | Z-Diode Anode → Shield-Pads U1 **GND** | |
+| Solarpanel + | linkes Ende der Diode **SS14** (Anode, Seite U1) | so gelötet am 21.10. Die Lage wurde vom Foto der Platine abgelesen, vor dem Löten mit Diodentest und Durchgang geprüft |
+| Solarpanel − | rundes Loch des oberen 5V/GND-Paars (Rückseite, rechts oben neben der Spule 3R3) | |
+| Z-Diode | Ring (Kathode) an die SS14-Anode, anderes Ende an Masse (U1-Schirmpad bzw. GND-Loch) | **parallel** zum Eingang, nicht in Reihe. Begrenzt die Leerlaufspannung des Panels (bis 8,2 V) auf ~6,2 V. Bei vollem Akku und praller Sonne arbeitet die 1,3-W-Diode an der Grenze (gerechnet ~1,2–1,3 W) → vor dem Sommer auf Wärme prüfen, ggf. 5-W-Typ |
 | Shield **5V** | D1 mini **5V** | **Nicht** den 3V-Ausgang des Shields nehmen (XC6206 ohne Ausgangskondensator, instabil) |
 | Shield GND | D1 mini G | |
 | Akku + (Halterkontakt, Draht angelötet) | 100 kΩ + 22 kΩ in Reihe → **A0** | mit dem internen Teiler 220k/100k des D1 mini ergibt sich ein Endwert von ~4,4 V und ein Dauerstrom von ~10 µA |
@@ -189,8 +194,20 @@ Quellen: [`gehaeuse/ibc-gehaeuse.scad`](gehaeuse/ibc-gehaeuse.scad) (A und Schwi
 | `ibc_b_dichtung.stl` | Deckeldichtung zu B (TPU) | konstruiert 09.10., nicht gedruckt | Rahmen 1,6 mm auf der 3-mm-Wandoberkante, Wulst 0,8 × 0,6 auf Wandmitte, 4 Eckohren Ø 7,4 mit Loch Ø 3,4 über den Domen. Druck: TPU 95A, liegend (Wulst oben), 100 % Füllung, ~20 mm/s |
 | `ibc_sensor_halter.stl`, `ibc_sensor_abdeckung.stl` | Einzelhalter für den Sensor (Flansch 104 × 60) | **ersetzt** durch das Kombi-Gehäuse | nicht mehr drucken |
 | `vorschau_ibc.png` | Vorschaubild | **veraltet** | zeigt noch den runden Flansch und die alte D1-Box |
+| `solar_keil.stl` | **Panel B:** Wandkeil, neigt das Panel 30° von der senkrechten Wand weg (60° zur Waagerechten) | gedruckt 21.10. | 60,8 × 142,4 × 85,4 mm, 4× Holzschraube 4 × 30 Senkkopf. Druck: **auf der Seite**, Profil auf dem Bett |
+| `solar_rahmen.stl` | **Panel B:** Rahmen, Panel wird von oben eingeschoben | gedruckt 21.10. | 85,4 × 113,6 × 18,2 mm; Schlitz 2,85 mm für das 2,33 mm dicke Panel; Kammer 11 mm für Lötstelle/Wago; **Einschub-Nut** 20 × 9,5 mm im Kopfblock für die Anschlüsse auf der Panel-Rückseite; Kabel Ø 7,5 und Ablauflöcher unten. Mit 4× 3 × 12 von innen auf den Keil. Druck: Rückwand unten |
+| `solar_riegel.stl` | **Panel B:** Deckel oben, hält das Panel im Schlitz | gedruckt 21.10. | Zunge in den Schlitz, 2× 3 × 12. Druck: Platte unten |
+| `vorschau_solarhalter.png` | Vorschau Halter eingebaut | aktuell | |
 
 Im SCAD stehen außerdem `d1_box`/`d1_deckel` (getrennte D1-Box). Sie sind durch das Kombi-Gehäuse ersetzt.
+
+**Solarpanel-Halter:** Quelle [`gehaeuse/solarpanel-halter.scad`](gehaeuse/solarpanel-halter.scad), `TEIL = "keil" | "rahmen" | "riegel"`.
+Kollisionen per Schnittmenge geprüft (`pruef_rahmen_keil`, `pruef_riegel_rahmen` leer bzw. 0 mm³; `pruef_einschub`: ein Buckel
+14 × 40 × 5 mm auf der Panel-Rückseite gleitet über den ganzen Weg durch die Nut, ohne Nut schlägt er an).
+Montage: Keil an die Wand → Rahmen von innen auf den Keil → Kabel von unten durch die Kammer nach oben, anschließen →
+Panel einschieben, Kabel unten nachziehen → Riegel drauf. Silikon (neutralvernetzend) an der Kabeldurchführung.
+Das Panel hat eine Epoxid-Front, aber **keine IP-Angabe**; Rückseite und Lötstellen müssen in der Kammer trocken bleiben.
+Im SCAD steht zusätzlich eine Variante B (Panel von vorn: `kasten`/`blende`); sie wird nicht gebraucht.
 
 **Material und Druck:** PETG (ASA bei direkter Sonne), 0,2 mm Schicht, ohne Stützen. Der Standort ist draußen, aber überdacht.
 Füllung und Wandzahl sind für IBC nicht notiert (bei der Optolink-Box waren es 3 Wände).
@@ -387,8 +404,12 @@ nicht zurücksetzt *(Begründung aus der Planung, im Betrieb noch nicht beobacht
 | Sa 18.10. 12:00 | Akkutrend B nach einer Woche (Tagesmittel 11.–18.10., mV/Tag) → reicht der Akku über die Abwesenheit bis zum Panel? | — |
 | bis 22.10. | A einmessen (Leer-Wert ist noch geschätzt) | Jens |
 | **23.10.–01.11.** | **Jens nicht zu Hause.** Keine Lieferungen, keine Handgriffe. Die Pumpenlogik ist seit 12.10. aktiv; sie soll nur weiterlaufen, wenn der Probelauf vorher klappt. Sonst die Automationen `ibc_*` deaktivieren | — |
-| Mo 02.11. 18:00 | reichelt bestellen: Seeed Solar 1 W, 2× BZX 85C6V2, EVE 18650-33V, H05RN-F 2 × 0,75 ~3 m. Vorher Preise und Lieferbarkeit neu prüfen (Stand 07.10. ~19–20 €) | Jens |
-| nach Lieferung | Panel + Z-Diode an die U1-Pads (vorher Pad-Foto) | Jens |
+| ~~Mo 02.11. 18:00~~ | ~~reichelt bestellen~~ → vorgezogen, geliefert 20.10. | — |
+| ~~nach Lieferung~~ | ~~Panel + Z-Diode anlöten~~ → erledigt 21.10. | — |
+| offen | **Laden belegen:** Lade-LED in der Sonne ansehen oder Panelstrom messen (über die Spannung allein bei voller Zelle nicht nachweisbar) | Jens |
+| offen | **Passprobe Halter** (gleiten die Anschlüsse durch die Nut, klappert das Panel?), dann Montage an der Wand; Himmelsrichtung der Wand notieren | Jens |
+| So 15.11. | Akkutrend B nach 5 Wochen (Nachtmittel 03–05 Uhr) | — |
+| vor dem Sommer | Z-Diode auf Wärme prüfen (ggf. 5-W-Typ) | — |
 | später | Schlafstrom über den Akkuspannungsverlauf in HA bewerten (keine µA-Messung geplant) | — |
 | ~~offen~~ | ~~Länge des Schwimmerkabels~~ → erledigt: Schwimmer am Standort eingebaut und getestet (12.10.) | — |
 | offen | Länge und Querschnitt des USB-Kabels von A (für die Neustart-Frage, falls das Netzteil es nicht war) | Jens |
@@ -416,12 +437,17 @@ nicht zurücksetzt *(Begründung aus der Planung, im Betrieb noch nicht beobacht
 ├── gehaeuse/
 │   ├── ibc-gehaeuse.scad         Kombi-Gehäuse A, Schwimmerhalter, ältere Einzelteile
 │   ├── ibc-b-gehaeuse.scad       Gehäuse Knoten B
+│   ├── solarpanel-halter.scad    Solarpanel-Halter B (Keil, Rahmen, Riegel)
 │   ├── ibc_kombi_gehaeuse.stl    A – Gehäuse            (gedruckt)
 │   ├── ibc_kombi_deckel.stl      A – Deckel             (gedruckt)
 │   ├── ibc_schwimmer_halter.stl  B – Schwimmerhalter    (gedruckt)
 │   ├── ibc_b_gehaeuse.stl        B – Gehäuse            (gedruckt)
 │   ├── ibc_b_deckel.stl          B – Deckel             (gedruckt)
 │   ├── ibc_b_dichtung.stl        B – Deckeldichtung TPU (konstruiert)
+│   ├── solar_keil.stl            Panel B – Wandkeil     (gedruckt)
+│   ├── solar_rahmen.stl          Panel B – Rahmen       (gedruckt)
+│   ├── solar_riegel.stl          Panel B – Riegel       (gedruckt)
+│   ├── vorschau_solarhalter.png  Vorschau Halter eingebaut
 │   ├── ibc_sensor_halter.stl     ersetzt, nicht drucken
 │   ├── ibc_sensor_abdeckung.stl  ersetzt, nicht drucken
 │   └── vorschau_ibc.png          veraltete Vorschau
