@@ -67,8 +67,10 @@ If node B does not report, the pump does not start. After a power failure the pl
 | Float test B on site | ✅ passed: two cycles, "target container full" went on and off again immediately each time, no bouncing | 12.10. 18:21–18:23 |
 | Lid gasket B (TPU) | ✅ designed, collision-checked; ⬜ not printed | 09.10. |
 | Lid screws B 3 × 12 | ⬜ missing, to buy | — |
-| Battery B | ✅ e-cigarette battery, self-discharge test passed (4.12 V in operation) | 11.10. |
-| Solar panel, Zener diode, EVE battery, panel cable | ⬜ not ordered, reichelt order planned | 02.11. |
+| Battery B | ✅ e-cigarette battery, self-discharge test passed (4.12 V in operation); replaced by an EVE 18650-33V on 21.10. | 11.10. / 21.10. |
+| Solar panel, Zener diode, EVE battery | ✅ delivered (reichelt, 20.10.), panel + Zener diode soldered, EVE cell installed; B back on site | 21.10. |
+| Charging via the panel | ⬜ **not proven yet**: cell almost full (4.18 V), voltage flat during the day, ~4 mV/h drop at night. Proof via the charge LED or a current measurement | 22.10. |
+| Solar panel holder (wedge, frame with slide-in groove, latch) | ✅ designed and printed (reprint 21.10., first print on 20.10. failed); ⬜ fit test and mounting open | 21.10. |
 | Pump logic in HA | ✅ **active** since 12.10. ~18:45 as UI helpers + 10 UI automations (section 8); ⬜ **not yet tested** in a real pump run | 12.10. |
 | Normal pump power, dry-run threshold | ✅ test run 14.10.: **175 W** normal → threshold **105 W** (helper). Power during a real dry run not measured | — |
 
@@ -101,10 +103,12 @@ Prices and part numbers only where documented in the notes. "—" = not noted.
 | Microcontroller | 1 | Wemos D1 mini (ESP8266, CH340) | stock | available, flashed |
 | Battery shield | 1 | "18650 Battery Shield V3", **right-hand variant** (input jack U1 not populated, diode SS24 present). Components probably TC4056A + DW01/8205 + FP6298 *(derived from the layout, markings illegible)* | stock | available, polarity checked |
 | Battery (variant 1) | 1 | 18650 from an e-cigarette, probably an unprotected high-drain cell | stock | in self-discharge test until 09.10. |
-| Battery (variant 2) | 1 | EVE 18650-33V, flat top | reichelt, €6.82 | not ordered (02.11.) |
-| Solar panel | 1 | Seeed DEBO SOLAR 1.0W, 5.5 V / ~170 mA, **open-circuit up to 8.2 V** | reichelt, €6.20 (available from 23.10.) | not ordered (02.11.) |
-| Zener diode | 2 (1 + spare) | BZX 85C6V2, 6.2 V / 1.3 W | reichelt, €0.06/pc | not ordered (02.11.) |
-| Panel cable | ~3 m | H05RN-F 2 × 0.75 mm² (outdoor) | reichelt, — | not ordered (02.11.) |
+| Battery (variant 2) | 1 | EVE 18650-33V, flat top | reichelt, €6.82 | **installed 21.10.** (replaces variant 1) |
+| Solar panel | 1 | Seeed DEBO SOLAR 1.0W, 5.5 V / ~170 mA, **open-circuit up to 8.2 V**, 100 × 80 × 2.33 mm (measured) | reichelt, €6.20 | delivered 20.10., connected 21.10. |
+| Zener diode | 2 (1 + spare) | BZX 85C6V2, 6.2 V / 1.3 W | reichelt, €0.06/pc | installed 21.10. |
+| Panel cable | ~3 m | H05RN-F 2 × 0.75 mm² (outdoor) | not available at reichelt (only a 50 m reel of H05RR-F) | source not documented |
+| Solar panel holder | 1 + 1 + 1 | `solar_keil.stl` + `solar_rahmen.stl` + `solar_riegel.stl` (section 5) | own print, PETG/ASA | printed 21.10. |
+| Holder screws | 4 + 4 + 2 | wood screw 4 × 30 countersunk (wedge → wall), 3 × 12 (frame → wedge, latch → frame) | — | — |
 | Resistors | 2 | 100 kΩ + 22 kΩ in series (measured together 121.5 kΩ) | assortment | installed 08.10. |
 | Wire jumper | 1 | D0 (GPIO16) → RST, for deep sleep | — | installed 08.10. |
 | Float switch | 1 | side-mount float switch with hinged float (reed, 2 wires, ~3 mm cable), thread Ø 19 mm × 19.5 mm, sealing ring + nut; arrow on the body = mounting orientation | stock | available |
@@ -151,8 +155,9 @@ The wire colours come from the workshop notes and are not separately documented 
 
 | From | To | Note |
 |---|---|---|
-| Solar panel + | Zener diode cathode (ring) → shield pads U1 **VBUS** | Zener diode **in parallel** with the input. Before soldering, take a photo of the pads and determine which pad is VBUS |
-| Solar panel − | Zener diode anode → shield pads U1 **GND** | |
+| Solar panel + | left end of the **SS14** diode (anode, U1 side) | soldered like this on 21.10. The position was read from a photo of the board and checked with diode test and continuity before soldering |
+| Solar panel − | round hole of the upper 5V/GND pair (back side, top right next to the 3R3 inductor) | |
+| Zener diode | ring (cathode) to the SS14 anode, other end to ground (U1 shield pad or GND hole) | **in parallel** with the input, not in series. Clamps the panel's open-circuit voltage (up to 8.2 V) to ~6.2 V. With a full battery and bright sun the 1.3 W diode runs at its limit (calculated ~1.2–1.3 W) → check for heat before summer, use a 5 W type if needed |
 | Shield **5V** | D1 mini **5V** | Do **not** use the shield's 3V output (XC6206 without output capacitor, unstable) |
 | Shield GND | D1 mini G | |
 | Battery + (holder contact, wire soldered on) | 100 kΩ + 22 kΩ in series → **A0** | together with the D1 mini's internal 220k/100k divider this gives a full-scale value of ~4.4 V and a continuous current of ~10 µA |
@@ -189,8 +194,20 @@ Sources: [`gehaeuse/ibc-gehaeuse.scad`](gehaeuse/ibc-gehaeuse.scad) (A and float
 | `ibc_b_dichtung.stl` | lid gasket for B (TPU) | designed 09.10., not printed | frame 1.6 mm on the 3 mm wall top, bead 0.8 × 0.6 on the wall centre, 4 corner ears Ø 7.4 with Ø 3.4 hole over the bosses. Print: TPU 95A, flat (bead up), 100 % infill, ~20 mm/s |
 | `ibc_sensor_halter.stl`, `ibc_sensor_abdeckung.stl` | separate holder for the sensor (flange 104 × 60) | **replaced** by the combined enclosure | do not print any more |
 | `vorschau_ibc.png` | preview image | **outdated** | still shows the round flange and the old D1 box |
+| `solar_keil.stl` | **Panel B:** wall wedge, tilts the panel 30° away from the vertical wall (60° to horizontal) | printed 21.10. | 60.8 × 142.4 × 85.4 mm, 4× wood screw 4 × 30 countersunk. Print: **on its side**, profile on the bed |
+| `solar_rahmen.stl` | **Panel B:** frame, the panel slides in from the top | printed 21.10. | 85.4 × 113.6 × 18.2 mm; slot 2.85 mm for the 2.33 mm panel; 11 mm chamber for solder joint/Wago; **slide-in groove** 20 × 9.5 mm in the head block for the terminals on the back of the panel; cable Ø 7.5 and drain holes at the bottom. Fixed to the wedge with 4× 3 × 12 from inside. Print: back wall down |
+| `solar_riegel.stl` | **Panel B:** top cover, keeps the panel in the slot | printed 21.10. | tongue into the slot, 2× 3 × 12. Print: plate down |
+| `vorschau_solarhalter.png` | preview of the mounted holder | current | |
 
 The SCAD also contains `d1_box`/`d1_deckel` (separate D1 box). They have been replaced by the combined enclosure.
+
+**Solar panel holder:** source [`gehaeuse/solarpanel-halter.scad`](gehaeuse/solarpanel-halter.scad), `TEIL = "keil" | "rahmen" | "riegel"`.
+Collisions checked by intersection (`pruef_rahmen_keil`, `pruef_riegel_rahmen` empty or 0 mm³; `pruef_einschub`: a bump of
+14 × 40 × 5 mm on the back of the panel slides through the groove over the whole way, without the groove it hits).
+Mounting: wedge to the wall → frame onto the wedge from inside → cable from below through the chamber to the top, connect →
+slide the panel in, pull the cable back down → latch on. Silicone (neutral-cure) at the cable entry.
+The panel has an epoxy front but **no IP rating**; the back and the solder joints must stay dry in the chamber.
+The SCAD also contains a variant B (panel from the front: `kasten`/`blende`); it is not needed.
 
 **Material and printing:** PETG (ASA in direct sun), 0.2 mm layer height, no supports. The location is outdoors but roofed.
 Infill and wall count are not noted for the IBC parts (for the Optolink box it was 3 walls).
@@ -389,8 +406,12 @@ report. The run time comes from an `input_datetime` so that an HA restart or a r
 | Sat 18.10. 12:00 | Battery trend B after one week (daily means 11.–18.10., mV/day) → does the battery last through the absence until the panel arrives? | — |
 | by 22.10. | Calibrate A (the empty value is still estimated) | Jens |
 | **23.10.–01.11.** | **Jens away from home.** No deliveries, no manual work. The pump logic has been active since 12.10.; it should only keep running if the test run succeeds beforehand. Otherwise disable the `ibc_*` automations | — |
-| Mon 02.11. 18:00 | Order from reichelt: Seeed Solar 1 W, 2× BZX 85C6V2, EVE 18650-33V, H05RN-F 2 × 0.75 ~3 m. Re-check prices and availability first (as of 07.10. ~€19–20) | Jens |
-| after delivery | Panel + Zener diode to the U1 pads (photo of the pads first) | Jens |
+| ~~Mon 02.11. 18:00~~ | ~~Order from reichelt~~ → brought forward, delivered 20.10. | — |
+| ~~after delivery~~ | ~~Solder panel + Zener diode~~ → done 21.10. | — |
+| open | **Prove charging:** look at the charge LED in the sun or measure the panel current (not provable from the voltage alone while the cell is full) | Jens |
+| open | **Fit test of the holder** (do the terminals slide through the groove, does the panel rattle?), then mount it on the wall; note the wall's orientation | Jens |
+| Sun 15.11. | Battery trend B after 5 weeks (night mean 03–05 h) | — |
+| before summer | Check the Zener diode for heat (5 W type if needed) | — |
 | later | Assess sleep current via the battery voltage curve in HA (no µA measurement planned) | — |
 | ~~open~~ | ~~Length of the float cable~~ → done: float installed and tested on site (12.10.) | — |
 | open | Length and cross-section of the USB cable of A (for the restart question, in case it was not the power supply) | Jens |
@@ -418,12 +439,17 @@ report. The run time comes from an `input_datetime` so that an HA restart or a r
 ├── gehaeuse/
 │   ├── ibc-gehaeuse.scad         combined enclosure A, float holder, older single parts
 │   ├── ibc-b-gehaeuse.scad       enclosure node B
+│   ├── solarpanel-halter.scad    solar panel holder B (wedge, frame, latch)
 │   ├── ibc_kombi_gehaeuse.stl    A – enclosure          (printed)
 │   ├── ibc_kombi_deckel.stl      A – lid                (printed)
 │   ├── ibc_schwimmer_halter.stl  B – float holder       (printed)
 │   ├── ibc_b_gehaeuse.stl        B – enclosure          (printed)
 │   ├── ibc_b_deckel.stl          B – lid                (printed)
 │   ├── ibc_b_dichtung.stl        B – lid gasket TPU     (designed)
+│   ├── solar_keil.stl            panel B – wall wedge   (printed)
+│   ├── solar_rahmen.stl          panel B – frame        (printed)
+│   ├── solar_riegel.stl          panel B – latch        (printed)
+│   ├── vorschau_solarhalter.png  preview of the mounted holder
 │   ├── ibc_sensor_halter.stl     replaced, do not print
 │   ├── ibc_sensor_abdeckung.stl  replaced, do not print
 │   └── vorschau_ibc.png          outdated preview
